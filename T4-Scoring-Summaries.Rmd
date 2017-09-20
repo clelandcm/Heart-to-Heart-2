@@ -1,0 +1,43 @@
+---
+title: "H2H T4 Scoring and Summaries"
+author: "Last Updated"
+date: '`r format(Sys.time(), "%B %d, %Y %r %Z")`'
+output:
+  html_document:
+    highlight: tango
+    theme: cerulean
+    toc: yes
+    toc_depth: 5
+    css: wide.css
+  word_document:
+    toc: yes
+    toc_depth: '5'
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+options(width = 150)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fig.height = 7, fig.width = 10)
+```
+
+```{r}
+library(redcapAPI)
+library(openxlsx)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(DiagrammeR)
+library(ggthemes)
+library(scales)
+library(DiagrammeRsvg)
+library(svglite)
+library(rsvg)
+library(png)
+library(XML)
+```
+
+```{r}
+load("c:/chuck/NYU/NoART/Backups/hth.Rdata", .GlobalEnv)
+```
+
+* `r hth %>% filter(!is.na(fu4_auto_date)) %>% nrow()` T4 interviews
