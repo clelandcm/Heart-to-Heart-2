@@ -1,0 +1,3632 @@
+---
+title: "H2H Baseline Scoring and Summaries"
+author: "Last Updated"
+date: '`r format(Sys.time(), "%B %d, %Y %r %Z")`'
+output:
+  html_document:
+    highlight: tango
+    theme: cerulean
+    toc: yes
+    toc_depth: 5
+    css: wide.css
+  word_document:
+    toc: yes
+    toc_depth: '5'
+always_allow_html: yes
+---
+
+```{r setup, include=FALSE}
+options(width = 150)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE, comment=NA, fig.height = 7, fig.width = 10, dpi=600, out.width="1536px", height="864px")
+```
+
+```{r}
+library(redcapAPI)
+library(openxlsx)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(DiagrammeR)
+library(ggthemes)
+library(scales)
+library(DiagrammeRsvg)
+library(svglite)
+library(rsvg)
+library(png)
+library(XML)
+```
+
+```{r}
+load("c:/chuck/NYU/NoART/Backups/hth.Rdata", .GlobalEnv)
+```
+
+```{r}
+Enrolled <- hth %>% 
+  filter(bl_enroll_consent_sign_comp == "Yes") %>% 
+               select(unique_id)
+```
+
+# How long is the baseline interview taking?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("bl_timestamp")) %>%
+  gather(Section, Time, bl_timestamp_auto_wstaff:bl_timestamp_auto_end) %>%
+  na.omit() %>%
+  arrange(unique_id, Time) %>%
+  group_by(unique_id) %>%
+  summarize(`Baseline Interview Minutes` = difftime(last(Time), first(Time), units = "mins")) %>%
+  filter(`Baseline Interview Minutes` > 0) %>%
+  ggplot(aes(x = `Baseline Interview Minutes`)) + 
+  geom_density(fill="#4169E1", alpha = .33) +
+  scale_x_continuous(limits = c(0,160), breaks = seq(0,160,20)) +
+  theme_minimal() +
+  theme(text = element_text(size=14))
+```
+
+# Demographics
+## Birthplace
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_birthplace) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Education
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_education) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Monthly Income
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_income) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Employment
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_cemp) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## During the past 12 months, how often did you run out of money for basic necessities like rent, utilities or food?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_necess) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Food Insecurity
+
+* U.S. HOUSEHOLD FOOD SECURITY SURVEY MODULE: THREE-STAGE DESIGN, WITH SCREENERS Economic Research Service, USDA September 2012 (https://www.ers.usda.gov/media/8271/hh2012.pdf).
+
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  mutate(Food_Insecurity = bl_food_ins_1 %in% c("Sometimes true","Often true") |
+                           bl_food_ins_2 %in% c("Sometimes true","Often true") |
+                           bl_food_ins_3 %in% c("Sometimes true","Often true")) %>%
+  count(Food_Insecurity) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Are you covered by health insurance or some other kind of health care plan?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_healthinsur_1) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## What kind of health insurance or health care coverage do you have? 
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & bl_healthinsur_1 == "Yes") %>%
+  count(bl_healthinsur_2) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Are you currently enrolled in the AIDS Drug Assistance Program, or ADAP?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_adap) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Do you receive services or benefits from the New York City HASA, the local HIV/AIDS Services Administration?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_hasa) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## What type of place do you currently live in?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_livingsit_1) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Homelessness History
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  mutate(Homelessness_History = ifelse(!is.na(bl_homeless_nhbs_3) & bl_homeless_nhbs_3 == "Yes", "Currently Homeless",
+                                       ifelse(!is.na(bl_homeless_nhbs_2) & bl_homeless_nhbs_2 == "Yes", "Homeless in Past Year, Not Currently",
+                                              ifelse(bl_homeless_nhbs_1 == "Yes", "Homeless Lifetime, Not in Past Year",
+                                                     ifelse(bl_homeless_nhbs_1 == "No", "Never Homeless", NA))))) %>%
+  count(Homelessness_History) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## What is your current relationship status?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_relstatus) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Sexual Orientation
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_sexor) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Do you consider yourself transgender or transsexual, even if you call it something different?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_tg) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## What is your immigration status?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_immstat) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Incarceration History
+### Have you ever been held in a detention center, jail, or prison for more than 24 hours?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(bl_jail_1) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+### Over you whole life, how many different times have you been held in a detention center, jail, or prison for more than 24 hours?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & bl_jail_1 == "Yes") %>%
+  count(bl_jail_2) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+### During the past 6 months, have you been held in a detention center, jail, or prison, for more than 24 hours?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & bl_jail_1 == "Yes") %>%
+  count(bl_jail_3) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+# HIV and ART History
+## How old were you when you got your first HIV-positive test result?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & hiv_art_hist_q1 <= 89) %>%
+  rename(`Age Diagnosed` = hiv_art_hist_q1) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Age Diagnosed`, na.rm = TRUE)),
+            sd = round(sd(`Age Diagnosed`, na.rm = TRUE)),
+            Median = round(median(`Age Diagnosed`, na.rm = TRUE)),
+            IQR = round(IQR(`Age Diagnosed`, na.rm = TRUE)),
+            Min = min(`Age Diagnosed`, na.rm = TRUE),
+            Max = max(`Age Diagnosed`, na.rm = TRUE)) %>%
+  knitr::kable()
+
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & hiv_art_hist_q1 <= 89) %>%
+  rename(Age = hiv_art_hist_q1) %>%
+  ggplot(aes(x = Age)) +
+  geom_density(fill="#4169E1", alpha = .33) +
+  scale_x_continuous(limits=c(0,90), breaks = seq(0,90,5)) +
+  theme_minimal() +
+  theme(text = element_text(size=14))
+```
+
+## Where were you first told that you have HIV infection?
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  group_by(hiv_art_hist_q2) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+## Think about when you were first told you were HIV-positive. Some people find it more difficult than others to accept that information. To what extent did you accept or believe that you were actually HIV-positive when you were first told?
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  group_by(hiv_art_hist_q3) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Thinking about today, to what extent do you believe or accept that you are living with HIV?
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  group_by(hiv_art_hist_q4) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Think about when you were first told you were HIV-positive. How long was it until you first got medical care for HIV, by which we mean you received more HIV testing, more blood testing, or an examination?
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  group_by(hiv_art_hist_q5) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Think about your first health care visit where you talked to a health care provider about HIV. Do you recall your CD4 or T cell count the first time it was tested?
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  group_by(hiv_art_hist_q6) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## If you do recall your CD4 or T cell count the first time it was tested, please type in the number
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q6_1)) %>%
+  rename(`First CD4` = hiv_art_hist_q6_1) %>%
+  summarize(n = n(),
+            Mean = round(mean(`First CD4`, na.rm = TRUE)),
+            sd = round(sd(`First CD4`, na.rm = TRUE)),
+            Median = round(median(`First CD4`, na.rm = TRUE)),
+            IQR = round(IQR(`First CD4`, na.rm = TRUE)),
+            Min = min(`First CD4`, na.rm = TRUE),
+            Max = max(`First CD4`, na.rm = TRUE)) %>%
+  knitr::kable()
+
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q6_1)) %>%
+  rename(`First CD4` = hiv_art_hist_q6_1) %>%
+  ggplot(aes(x = `First CD4`)) +
+  geom_density(fill="#4169E1", alpha = .33) +
+  scale_x_continuous(limits=c(0,2000)) +
+  theme_minimal() +
+  theme(text = element_text(size=14))
+```
+
+## How many years ago was that first CD4 or T cell test done?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2")%>%
+  mutate(CD4_Date = as.Date(ifelse(!is.na(hiv_art_hist_q7) & hiv_art_hist_q7 %in% 1980:2021 & !is.na(hiv_art_hist_q7_1) & hiv_art_hist_q7_1 %in% 1:12, paste(hiv_art_hist_q7, hiv_art_hist_q7_1, "01", sep = "-"), NA)),
+         bl_Year = as.numeric(format(bl_date, "%Y")),
+    `Years Since First CD4` = ifelse(!is.na(CD4_Date), as.vector(difftime(bl_date, CD4_Date, units = "weeks") / (52/12)),
+                                      ifelse(!is.na(hiv_art_hist_q7) & hiv_art_hist_q7 %in% 1980:2021, (bl_Year - hiv_art_hist_q7) * 12, NA)) / 12) %>%
+  filter(!is.na(`Years Since First CD4`)) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Years Since First CD4`, na.rm = TRUE),2),
+            sd = round(sd(`Years Since First CD4`, na.rm = TRUE),2),
+            Median = round(median(`Years Since First CD4`, na.rm = TRUE),2),
+            IQR = round(IQR(`Years Since First CD4`, na.rm = TRUE),2),
+            Min = round(min(`Years Since First CD4`, na.rm = TRUE),2),
+            Max = round(max(`Years Since First CD4`, na.rm = TRUE),2)) %>%
+  knitr::kable()
+```
+
+## What was your viral load count the first time it was tested?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q8)) %>%
+    group_by(hiv_art_hist_q8) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## How many years ago was the first viral load test done?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2")%>%
+  mutate(VL_Date = as.Date(ifelse(!is.na(hiv_art_hist_q9) & hiv_art_hist_q9 %in% 1980:2021 & !is.na(hiv_art_hist_q9_1) & hiv_art_hist_q9_1 %in% 1:12, paste(hiv_art_hist_q9, hiv_art_hist_q9_1, "01", sep = "-"), NA)),
+         bl_Year = as.numeric(format(bl_date, "%Y")),
+    `Years Since First Viral Load` = ifelse(!is.na(VL_Date), as.vector(difftime(bl_date, VL_Date, units = "weeks") / (52/12)),
+                                      ifelse(!is.na(hiv_art_hist_q9) & hiv_art_hist_q9 %in% 1980:2021, (bl_Year - hiv_art_hist_q9) * 12, NA)) / 12) %>%
+  filter(!is.na(`Years Since First Viral Load`)) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Years Since First Viral Load`, na.rm = TRUE),2),
+            sd = round(sd(`Years Since First Viral Load`, na.rm = TRUE),2),
+            Median = round(median(`Years Since First Viral Load`, na.rm = TRUE),2),
+            IQR = round(IQR(`Years Since First Viral Load`, na.rm = TRUE),2),
+            Min = round(min(`Years Since First Viral Load`, na.rm = TRUE),2),
+            Max = round(max(`Years Since First Viral Load`, na.rm = TRUE),2)) %>%
+  knitr::kable()
+```
+
+## Of all your CD4 or T cells tests, what was your lowest count?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q10) & !(hiv_art_hist_q10 == -999) &
+           !(hiv_art_hist_q10 == 999 & bl_date <= "2017-08-21")) %>%
+  rename(`Lowest CD4` = hiv_art_hist_q10) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Lowest CD4`, na.rm = TRUE)),
+            sd = round(sd(`Lowest CD4`, na.rm = TRUE)),
+            Median = round(median(`Lowest CD4`, na.rm = TRUE)),
+            IQR = round(IQR(`Lowest CD4`, na.rm = TRUE)),
+            Min = min(`Lowest CD4`, na.rm = TRUE),
+            Max = max(`Lowest CD4`, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## When was that (lowest count) told to you? Just tell us the year.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q11) & hiv_art_hist_q11 > 1980) %>%
+  rename(`Lowest CD4 Year` = hiv_art_hist_q11) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Lowest CD4 Year`, na.rm = TRUE)),
+            sd = round(sd(`Lowest CD4 Year`, na.rm = TRUE)),
+            Median = round(median(`Lowest CD4 Year`, na.rm = TRUE)),
+            IQR = round(IQR(`Lowest CD4 Year`, na.rm = TRUE)),
+            Min = min(`Lowest CD4 Year`, na.rm = TRUE),
+            Max = max(`Lowest CD4 Year`, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## Since you have been diagnosed with HIV, what is the longest amount of time you have gone without seeing a health care provider about your HIV infection?  Tell us the number of months.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q12)) %>%
+  rename(`Longest Time Out of Care (Months)` = hiv_art_hist_q12) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Longest Time Out of Care (Months)`, na.rm = TRUE)),
+            sd = round(sd(`Longest Time Out of Care (Months)`, na.rm = TRUE)),
+            Median = round(median(`Longest Time Out of Care (Months)`, na.rm = TRUE)),
+            IQR = round(IQR(`Longest Time Out of Care (Months)`, na.rm = TRUE)),
+            Min = min(`Longest Time Out of Care (Months)`, na.rm = TRUE),
+            Max = max(`Longest Time Out of Care (Months)`, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## In the past year, have you received health care for your HIV infection?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q13)) %>%
+    group_by(hiv_art_hist_q13) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## In what type of place did you receive most of your HIV care in the past year?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q14)) %>%
+    group_by(hiv_art_hist_q14) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+### If Other, please specify:
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q14) & hiv_art_hist_q14 == "Other") %>%
+  group_by(hiv_art_hist_q14_1) %>%
+  tally() %>%
+  knitr::kable()
+```
+
+### What is the name of this place?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q15)) %>%
+  mutate(hiv_art_hist_q15 = ifelse(grepl("Peter Kru|peter kru|Peter kru", hiv_art_hist_q15), "Peter Krueger",
+                                   ifelse(grepl("St Mary|St. Mary", hiv_art_hist_q15), "St. Mary's",
+                                          ifelse(grepl("New York Pres|New York pres", hiv_art_hist_q15), "New York Presbyterian",
+                                                 ifelse(grepl("Mount Sin|Mt Sin", hiv_art_hist_q15), "Mount Sinai",
+                                                        ifelse(grepl("Bronx Leb|Bronx leb|bronx leb", hiv_art_hist_q15), "Bronx Lebanon",
+                                                               ifelse(grepl("^Bright|^bright", hiv_art_hist_q15), "Brighpoint",
+                                   hiv_art_hist_q15))))))) %>%
+  group_by(hiv_art_hist_q15) %>%
+  tally() %>%
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+## In the past year, have you received care from a health care provider who specializes in treating HIV?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q16)) %>%
+    group_by(hiv_art_hist_q16) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Is there one particular doctor, nurse or other medical provider who you usually see for most of your HIV treatment, like CD4 and viral load tests?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q17)) %>%
+    group_by(hiv_art_hist_q17) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Think about your most recent HIV health care appointment. What was your CD4 or T cell count the last time you received it? Please type the number.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q18) & !(hiv_art_hist_q18 == -999) &
+           !(hiv_art_hist_q18 == 999 & bl_date <= "2017-08-21")) %>%
+  rename(`Most Recent CD4` = hiv_art_hist_q18) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Most Recent CD4`, na.rm = TRUE)),
+            sd = round(sd(`Most Recent CD4`, na.rm = TRUE)),
+            Median = round(median(`Most Recent CD4`, na.rm = TRUE)),
+            IQR = round(IQR(`Most Recent CD4`, na.rm = TRUE)),
+            Min = min(`Most Recent CD4`, na.rm = TRUE),
+            Max = max(`Most Recent CD4`, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## When was your last CD4 or T cell count taken?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q19)) %>%
+    group_by(hiv_art_hist_q19) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## What was your viral load count the last time you received it?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q20)) %>%
+    group_by(hiv_art_hist_q20) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## When was your last viral load taken?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q21)) %>%
+    group_by(hiv_art_hist_q21) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## In the past year, have you been hospitalized as a result of HIV infection or the consequences of HIV?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q22)) %>%
+    group_by(hiv_art_hist_q22) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## In the past year, have you been to an ER (emergency room) as a result of HIV infection or the consequences of HIV?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q23)) %>%
+    group_by(hiv_art_hist_q23) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## How many different health care providers have you seen for your <b>physical health</b> in the past year, <strong>other</strong> than the provider who treats your HIV infection?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q24) & hiv_art_hist_q24 < 99) %>%
+   group_by(hiv_art_hist_q24) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## How many different health care providers have you seen for your <strong>mental health</strong> in the past year, <strong>other</strong> than the provider who treats your HIV infection?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q25) & hiv_art_hist_q25 < 99) %>%
+   group_by(hiv_art_hist_q25) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Not including any medications for HIV infection, how many different medications do you take (not including herbal supplements)?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q26) & hiv_art_hist_q26 < 99) %>%
+   group_by(hiv_art_hist_q26) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Please look through the HIV medications chart. Have you ever in your life taken HIV medications such as AZT, a protease inhibitor, or any other drugs such as those listed on this card?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q27)) %>%
+   group_by(hiv_art_hist_q27) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## When did you first take any of these HIV medications? Please tell us the year.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q28) &
+           hiv_art_hist_q28 %in% 1980:2022) %>%
+  rename(`Year First Took HIV Medication` = hiv_art_hist_q28) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Year First Took HIV Medication`, na.rm = TRUE)),
+            sd = round(sd(`Year First Took HIV Medication`, na.rm = TRUE)),
+            Median = round(median(`Year First Took HIV Medication`, na.rm = TRUE)),
+            IQR = round(IQR(`Year First Took HIV Medication`, na.rm = TRUE)),
+            Min = min(`Year First Took HIV Medication`, na.rm = TRUE),
+            Max = max(`Year First Took HIV Medication`, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## This very first time you went on HIV medications; how long did you keep taking them before either stopping it or having to switch to another regimen?  (Choose one)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q29)) %>%
+   group_by(hiv_art_hist_q29) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## People sometimes start HIV medication, then stop and take a break, and then try again.  How many different times have you started to take HIV medication, whether you took it for a long time period or a short time? Please type the number. 
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q30) & !(hiv_art_hist_q30 == -999) &
+           !(hiv_art_hist_q30 == 999 & bl_date <= "2017-08-21")) %>%
+  summarize(n = n(),
+            Mean = round(mean(hiv_art_hist_q30, na.rm = TRUE)),
+            sd = round(sd(hiv_art_hist_q30, na.rm = TRUE)),
+            Median = round(median(hiv_art_hist_q30, na.rm = TRUE)),
+            IQR = round(IQR(hiv_art_hist_q30, na.rm = TRUE)),
+            Min = min(hiv_art_hist_q30, na.rm = TRUE),
+            Max = max(hiv_art_hist_q30, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## What is the longest amount of time you took a regimen of HIV medication? (Provide answer in months. Enter 0 if less than 1 month.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q31) & !(hiv_art_hist_q31 == -999) &
+           !(hiv_art_hist_q31 == 999 & bl_date <= "2017-08-21")) %>%
+  summarize(n = n(),
+            Mean = round(mean(hiv_art_hist_q31, na.rm = TRUE)),
+            sd = round(sd(hiv_art_hist_q31, na.rm = TRUE)),
+            Median = round(median(hiv_art_hist_q31, na.rm = TRUE)),
+            IQR = round(IQR(hiv_art_hist_q31, na.rm = TRUE)),
+            Min = min(hiv_art_hist_q31, na.rm = TRUE),
+            Max = max(hiv_art_hist_q31, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## Number of months since you took a dose of HIV medication?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2")%>%
+  mutate(Medication_Date = as.Date(ifelse(!is.na(hiv_art_hist_q32) & hiv_art_hist_q32 %in% 1980:2021 & !is.na(hiv_art_hist_q32_1) & hiv_art_hist_q32_1 %in% 1:12, paste(hiv_art_hist_q32, hiv_art_hist_q32_1, "01", sep = "-"), NA)),
+         bl_Year = as.numeric(format(bl_date, "%Y")),
+    `Months Since HIV Medication` = ifelse(!is.na(Medication_Date), as.vector(difftime(bl_date, Medication_Date, units = "weeks") / (52/12)),
+                                      ifelse(!is.na(hiv_art_hist_q32) & hiv_art_hist_q32 %in% 1980:2021, (bl_Year - hiv_art_hist_q32) * 12, NA))) %>%
+  filter(!is.na(`Months Since HIV Medication`)) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Months Since HIV Medication`, na.rm = TRUE),2),
+            sd = round(sd(`Months Since HIV Medication`, na.rm = TRUE),2),
+            Median = round(median(`Months Since HIV Medication`, na.rm = TRUE),2),
+            IQR = round(IQR(`Months Since HIV Medication`, na.rm = TRUE),2),
+            Min = round(min(`Months Since HIV Medication`, na.rm = TRUE),2),
+            Max = round(max(`Months Since HIV Medication`, na.rm = TRUE),2)) %>%
+  knitr::kable()
+
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2")%>%
+  mutate(Medication_Date = as.Date(ifelse(!is.na(hiv_art_hist_q32) & hiv_art_hist_q32 %in% 1980:2021 & !is.na(hiv_art_hist_q32_1) & hiv_art_hist_q32_1 %in% 1:12, paste(hiv_art_hist_q32, hiv_art_hist_q32_1, "01", sep = "-"), NA)),
+         bl_Year = as.numeric(format(bl_date, "%Y")),
+    `Months Since HIV Medication` = ifelse(!is.na(Medication_Date), as.vector(difftime(bl_date, Medication_Date, units = "weeks") / (52/12)),
+                                      ifelse(!is.na(hiv_art_hist_q32) & hiv_art_hist_q32 %in% 1980:2021, (bl_Year - hiv_art_hist_q32) * 12, NA))) %>%
+  filter(!is.na(`Months Since HIV Medication`)) %>%
+ggplot(aes(x = `Months Since HIV Medication`)) +
+  geom_density(fill="#4169E1", alpha = .33) +
+  scale_x_continuous(limits=c(0,70), breaks = seq(0,70,5)) +
+  theme_minimal() +
+  theme(text = element_text(size=14))
+```
+
+## As far as you know, does your health care provider think it would be a good idea for you to start HIV medication at this time?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(hiv_art_hist_q33)) %>%
+    group_by(hiv_art_hist_q33) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+# Reasons for stopping or discontinuing HIV medication (n=`r sum(hth$hiv_art_hist_q27 == "Yes", na.rm = TRUE)`)
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  select(starts_with("stop_art")) %>%
+  gather(Reason, Response) %>%
+  mutate(
+    Reason = as.numeric(gsub("stop_art_q", "", Reason)),
+    Reason = as.character(Reason),
+    Reason = case_when(Reason == '1' ~ 'Doctor told you to stop.',
+                       Reason == '2' ~ 'The drug(s) did not work.',
+                       Reason == '3' ~ 'The drug(s) initially worked, but then stopped working.',
+                       Reason == '4' ~ 'You switched to other drugs.',
+                       Reason == '5' ~ 'You did not want side effects of the drugs.',
+                       Reason == '6' ~ 'Could not afford the drug.',
+                       Reason == '7' ~ 'You were on too many medications.',
+                       Reason == '8' ~ 'Your partner or friends suggested you stop taking them.',
+                       Reason == '9' ~ 'You changed doctors or clinics.',
+                       Reason == '10' ~ 'You prefer alternative treatments.',
+                       Reason == '11' ~ 'You do not want anyone to find out that you are HIV positive.',
+                       Reason == '12' ~ 'You decided to stop because your CD4 and viral load numbers have been good.',
+                       Reason == '13' ~ 'You believe you have been cured of HIV.')) %>%
+  group_by(Reason) %>%
+  summarize(Count = sum(Response == "Yes", na.rm = TRUE),
+            Percent = round(mean(Response == "Yes", na.rm = TRUE) * 100, 1)) %>%
+  arrange(desc(Count)) %>%
+  knitr::kable()
+```
+
+# Reasons for never taking HIV medication (n=`r sum(hth$hiv_art_hist_q27 == "No", na.rm = TRUE)`)
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  select(starts_with("never_art")) %>%
+  gather(Reason, Response) %>%
+  mutate(
+    Reason = as.numeric(gsub("never_art_q", "", Reason)),
+    Reason = as.character(Reason),
+    Reason = case_when(Reason == '2' ~ 'You could not afford the medications.',
+                       Reason == '3' ~ 'Your doctor never offered them to you.',
+                       Reason == '4' ~ 'Your family/friends discouraged you from taking them.',
+                       Reason == '5' ~ 'You are not receiving medical care.',
+                       Reason == '6' ~ 'You did not want the side effects.',
+                       Reason == '7' ~ 'You were concerned about toxicity.',
+                       Reason == '8' ~ 'You do not think the medications work.',
+                       Reason == '9' ~ 'You are worried about becoming resistant to the medications.',
+                       Reason == '10' ~ 'You prefer alternative treatments.',
+                       Reason == '11' ~ 'You do not want anyone to find your pills and figure out that you are HIV-positive.',
+                       Reason == '12' ~ 'You are waiting until your CD4 or viral load numbers get worse to take the medications.')) %>%
+  group_by(Reason) %>%
+  summarize(Count = sum(Response == "Yes", na.rm = TRUE),
+            Percent = round(mean(Response == "Yes", na.rm = TRUE) * 100, 1)) %>%
+  arrange(desc(Count)) %>%
+  knitr::kable()
+```
+
+# HIV Medication Adherence
+## Visual Analog Scale
+
+* Machtinger, E. L., & Bangsberg, D. R. (2005). HIV Insite Knowledge base chapter. Aherence to HIV Antiretroviral Therapy: University of California, San Francisco.
+
+* http://hivinsite.ucsf.edu/InSite?page=kb-03-02-09
+
+### Have you been prescribed to take HIV medications within the last 30 days?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(vas_q1) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+### How much medication have you taken in the last 3-4 weeks? (0-100%)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & vas_q1 == "Yes") %>%
+  summarize(n = n(),
+            Mean = round(mean(vas_q3, na.rm = TRUE), 1),
+            sd = round(sd(vas_q3, na.rm = TRUE), 1),
+            Median = median(vas_q3, na.rm = TRUE),
+            IQR = round(IQR(vas_q3, na.rm = TRUE), 1),
+            Min = min(vas_q3, na.rm = TRUE),
+            Max = max(vas_q3, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## Case-Adherence Index
+* Mannheimer, S. B., Mukherjee, R., Hirschhorn, L. R., Dougherty, J., Celano, S. A., Ciccarone, D., ... & Botsko, M. (2006). The CASE adherence index: A novel method for measuring adherence to antiretroviral therapy. _AIDS care_, 18(7), 853-861.
+
+### How often do you feel that you have difficulty taking your HIV medications on time? By 'on time' we mean no more than two hours before or two hours after the time your doctor told you to take it.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(case_adh_q1)) %>%
+  count(case_adh_q1) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+### On average, how many days per week would you say that you missed at least one dose of your HIV medications?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(case_adh_q2)) %>%
+  count(case_adh_q2) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+### When was the last time you missed at least one dose of your HIV medications?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(case_adh_q3)) %>%
+  count(case_adh_q3) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+### Score (3-16)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, case_adh_q1:case_adh_q3) %>%
+  mutate(case_adh_q1 = car::recode(case_adh_q1, "'Never'=4;'Rarely'=3;'Most of the time'=2;'All of the time'=1;else=NA", as.factor.result = FALSE),
+         case_adh_q2 = car::recode(case_adh_q2, "'Everyday'=1;'4-6 days/week'=2;'2-3 days/week'=3;'Once a week'=4;'Less than once a week'=5;'Never'=6;else=NA", as.factor.result = FALSE),
+         case_adh_q3 = car::recode(case_adh_q3, "'Within the past week'=1;'1-2 weeks ago'=2;'3-4 weeks ago'=3;'Between 1 and 3 months ago'=4;'More than 3 months ago'=5;'Never'=6;else=NA", as.factor.result = FALSE)) %>%
+  gather(Item, Response, case_adh_q1:case_adh_q3) %>%
+  group_by(unique_id) %>%
+  summarize(Case_Adherence_Score = sum(Response)) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Case_Adherence_Score, na.rm = TRUE), 2),
+            sd = round(sd(Case_Adherence_Score, na.rm = TRUE), 2),
+            Median = round(median(Case_Adherence_Score, na.rm = TRUE), 2),
+            IQR = round(IQR(Case_Adherence_Score, na.rm = TRUE), 2),
+            Min = min(Case_Adherence_Score, na.rm = TRUE),
+            Max = max(Case_Adherence_Score, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+### Good or Poor Adherence
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, case_adh_q1:case_adh_q3) %>%
+  mutate(case_adh_q1 = car::recode(case_adh_q1, "'Never'=4;'Rarely'=3;'Most of the time'=2;'All of the time'=1;else=NA", as.factor.result = FALSE),
+         case_adh_q2 = car::recode(case_adh_q2, "'Everyday'=1;'4-6 days/week'=2;'2-3 days/week'=3;'Once a week'=4;'Less than once a week'=5;'Never'=6;else=NA", as.factor.result = FALSE),
+         case_adh_q3 = car::recode(case_adh_q3, "'Within the past week'=1;'1-2 weeks ago'=2;'3-4 weeks ago'=3;'Between 1 and 3 months ago'=4;'More than 3 months ago'=5;'Never'=6;else=NA", as.factor.result = FALSE)) %>%
+  gather(Item, Response, case_adh_q1:case_adh_q3) %>%
+  group_by(unique_id) %>%
+  summarize(Case_Adherence_Score = sum(Response)) %>%
+  mutate(Good_Poor_Adherence = ifelse(Case_Adherence_Score > 10, "Good Adherence", "Poor Adherence")) %>%
+  na.omit() %>%
+  count(Good_Poor_Adherence) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, case_adh_q1:case_adh_q3) %>%
+  mutate(case_adh_q1 = car::recode(case_adh_q1, "'Never'=4;'Rarely'=3;'Most of the time'=2;'All of the time'=1;else=NA", as.factor.result = FALSE),
+         case_adh_q2 = car::recode(case_adh_q2, "'Everyday'=1;'4-6 days/week'=2;'2-3 days/week'=3;'Once a week'=4;'Less than once a week'=5;'Never'=6;else=NA", as.factor.result = FALSE),
+         case_adh_q3 = car::recode(case_adh_q3, "'Within the past week'=1;'1-2 weeks ago'=2;'3-4 weeks ago'=3;'Between 1 and 3 months ago'=4;'More than 3 months ago'=5;'Never'=6;else=NA", as.factor.result = FALSE)) %>%
+  na.omit() %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Co-Occurring Health Conditions
+## Ever Told
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+           redcap_event_name == "baseline_interview_arm_2") %>%
+  select(starts_with("co_occ_con_q")) %>%
+  select(-c(
+    co_occ_con_q22_1,
+    co_occ_con_q22_2,
+    co_occ_con_q4_1,
+    co_occ_con_q4_2
+  )) %>%
+  select(-ends_with("_1")) %>%
+  gather(Condition, Response) %>%
+  mutate(
+    Condition = as.numeric(gsub("co_occ_con_q", "", Condition)),
+    Condition = as.character(Condition),
+    Condition = case_when(
+      Condition == '1' ~ 'High blood pressure',
+      Condition == '2' ~ 'Heart disease',
+      Condition == '3' ~ 'Heart attack',
+      Condition == '4' ~ 'Cancer',
+      Condition == '5' ~ 'Diabetes (without complications)',
+      Condition == '6' ~ 'Diabetes (with Organ Damage)',
+      Condition == '7' ~ 'Other Kidney/Renal disease',
+      Condition == '8' ~ 'Chronic Pulmonary disease',
+      Condition == '9' ~ 'Gastric Ulcer',
+      Condition == '10' ~ 'Dementia',
+      Condition == '12' ~ 'Multiple Sclerosis (MS)',
+      Condition == '13' ~ 'Anxiety',
+      Condition == '14' ~ 'Depression',
+      Condition == '15' ~ 'Post Traumatic Stress Disorder (PTSD)',
+      Condition == '16' ~ 'Bipolar disorder',
+      Condition == '17' ~ 'Schizophrenia',
+      Condition == '18' ~ 'Obesity',
+      Condition == '19' ~ 'Asthma',
+      Condition == '20' ~ 'Arthritis',
+      Condition == '21' ~ 'Hepatitis C virus (HCV)',
+      Condition == '22' ~ 'Any other health condition'
+    )
+  ) %>%
+  group_by(Condition) %>%
+  summarize(Count = sum(Response == "Yes", na.rm = TRUE),
+            Percent = round(mean(Response == "Yes", na.rm = TRUE) * 100, 1)) %>%
+  arrange(desc(Count)) %>%
+  knitr::kable()
+```
+
+## Treated for the Condition in the Past Year
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id &
+  redcap_event_name == "baseline_interview_arm_2") %>%
+  select(starts_with("co_occ_con_q")) %>%
+  select(ends_with("_1"), ends_with("_2")) %>%
+  select(-c(co_occ_con_q22_1, co_occ_con_q4_1)) %>%
+  gather(Condition, Response) %>%
+  mutate(
+  Condition = gsub("co_occ_con_q", "", Condition),
+  Condition = gsub("_2|_1", "", Condition),
+  Condition = as.character(Condition),
+  Condition = case_when(
+  Condition == '1' ~ 'High blood pressure',
+  Condition == '2' ~ 'Heart disease',
+  Condition == '3' ~ 'Heart attack',
+  Condition == '4' ~ 'Cancer',
+  Condition == '5' ~ 'Diabetes (without complications)',
+  Condition == '6' ~ 'Diabetes (with Organ Damage)',
+  Condition == '7' ~ 'Other Kidney/Renal disease',
+  Condition == '8' ~ 'Chronic Pulmonary disease',
+  Condition == '9' ~ 'Gastric Ulcer',
+  Condition == '10' ~ 'Dementia',
+  Condition == '12' ~ 'Multiple Sclerosis (MS)',
+  Condition == '13' ~ 'Anxiety',
+  Condition == '14' ~ 'Depression',
+  Condition == '15' ~ 'Post Traumatic Stress Disorder (PTSD)',
+  Condition == '16' ~ 'Bipolar disorder',
+  Condition == '17' ~ 'Schizophrenia',
+  Condition == '18' ~ 'Obesity',
+  Condition == '19' ~ 'Asthma',
+  Condition == '20' ~ 'Arthritis',
+  Condition == '21' ~ 'Hepatitis C virus (HCV)',
+  Condition == '22' ~ 'Any other health condition'
+  )
+  ) %>%
+  group_by(Condition) %>%
+  summarize(
+  n = sum(!is.na(Response)),
+  `Count Treated Past Year` = sum(Response == "Yes", na.rm = TRUE),
+  `Percent Treated Past Year` = round(mean(Response == "Yes", na.rm = TRUE) *
+  100, 1)
+  ) %>%
+  arrange(desc(n)) %>%
+  knitr::kable()
+```
+
+# Motivation/Readiness/Stage of Change (1-10)
+* Willey, C., Redding, C., Stafford, J., Garfield, F., Geletko, S., Flanigan, T., ... & Caro, J. J. (2000). Stages of change for adherence with medication regimens for chronic disease: development and validation of a measure. _Clinical therapeutics_, 22(7), 858-871.
+* Rollnick, S. (1998). Readiness, importance, and confidence: Critical conditions of change in treatment. In W. R. Miller & N. Heather (Eds.), _Treating addictive behaviors_ (2nd Ed., pp. 49- 60). New York: Plenum.
+
+On a scale of 1-10, how important is it to you today to start taking HIV medication, where 1 is not important at all, and 10 is extremely important?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & soc_q_1 >= 0 & soc_q_1 <= 100) %>%
+  mutate(soc_q_1 = soc_q_1 / 100 * 9 + 1) %>%
+  summarize(n = n(),
+            Mean = round(mean(soc_q_1, na.rm = TRUE), 2),
+            sd = round(sd(soc_q_1, na.rm = TRUE), 2),
+            Median = round(median(soc_q_1, na.rm = TRUE), 2),
+            IQR = round(IQR(soc_q_1, na.rm = TRUE), 2),
+            Min = round(min(soc_q_1, na.rm = TRUE), 2),
+            Max = round(max(soc_q_1, na.rm = TRUE), 2)) %>%
+  knitr::kable()
+
+
+```
+
+On a scale of 1-10, how confident are you that you could take HIV medication- every day, as prescribed- if you started today, where 1 is not at all confident and 10 is extremely confident?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & soc_q_2 >= 0 & soc_q_2 <= 100) %>%
+  mutate(soc_q_2 = soc_q_2 / 100 * 9 + 1) %>%
+  summarize(n = n(),
+            Mean = round(mean(soc_q_2, na.rm = TRUE), 2),
+            sd = round(sd(soc_q_2, na.rm = TRUE), 2),
+            Median = round(median(soc_q_2, na.rm = TRUE), 2),
+            IQR = round(IQR(soc_q_2, na.rm = TRUE), 2),
+            Min = round(min(soc_q_2, na.rm = TRUE), 2),
+            Max = round(max(soc_q_2, na.rm = TRUE), 2)) %>%
+  knitr::kable()
+```
+
+On a scale of 1-10, how important is it to you today to attend your HIV medical care appointments, as recommended, where 1 is not important at all, and 10 is extremely important?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & soc_q_3 >= 0 & soc_q_3 <= 100) %>%
+  mutate(soc_q_3 = soc_q_3 / 100 * 9 + 1) %>%
+  summarize(n = n(),
+            Mean = round(mean(soc_q_3, na.rm = TRUE), 2),
+            sd = round(sd(soc_q_3, na.rm = TRUE), 2),
+            Median = round(median(soc_q_3, na.rm = TRUE), 2),
+            IQR = round(IQR(soc_q_3, na.rm = TRUE), 2),
+            Min = round(min(soc_q_3, na.rm = TRUE), 2),
+            Max = round(max(soc_q_3, na.rm = TRUE), 2)) %>%
+  knitr::kable()
+```
+
+On a scale of 1-10, how confident are you that you could attend your HIV medical care appointments, as recommended, where 1 is not at all confident and 10 is extremely confident?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & soc_q_4 >= 0 & soc_q_4 <= 100) %>%
+  mutate(soc_q_4 = soc_q_4 / 100 * 9 + 1) %>%
+  summarize(n = n(),
+            Mean = round(mean(soc_q_4, na.rm = TRUE), 2),
+            sd = round(sd(soc_q_4, na.rm = TRUE), 2),
+            Median = round(median(soc_q_4, na.rm = TRUE), 2),
+            IQR = round(IQR(soc_q_4, na.rm = TRUE), 2),
+            Min = round(min(soc_q_4, na.rm = TRUE), 2),
+            Max = round(max(soc_q_4, na.rm = TRUE), 2)) %>%
+  knitr::kable()
+```
+
+# WHO Assist
+
+* WHO ASSIST Working Group (2002). The Alcohol, Smoking and Substance Involvement Screening Test (ASSIST): development, reliability and feasibility. _Addiction_, 97 (9): 1183-1194.
+
+* Humeniuk RE, Ali RA, Babor TF, Farrell M, Formigoni ML, Jittiwutikarn J, Boerngen de Larcerda R, Ling W, Marsden J, Monteiro M, Nhiwhatiwa S, Pal H, Poznyak V & Simon S (2008). Validation of the Alcohol Smoking and Substance Involvement Screening Test (ASSIST). _Addiction_ 103(6): 1039-1047.
+
+* Humeniuk RE, Henry-Edwards S, Ali RL, Poznyak V and Monteiro M (2010). _The Alcohol, Smoking and Substance Involvement Screening Test (ASSIST): manual for use in primary care_. Geneva, World Health Organization.
+
+## Ever Used
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(who_assist_ever_q1_a:who_assist_ever_q1_l) %>%
+  gather(Substance, Use) %>%
+  mutate(Substance = gsub("who_assist_ever_q1_", "", Substance),
+    Substance = case_when(  
+Substance == 'a' ~ 'a. Tobacco products',
+Substance == 'b' ~ 'b. Alcoholic beverages',
+Substance == 'c' ~ 'c. Cannabis',
+Substance == 'd' ~ 'd. Cocaine',
+Substance == 'e' ~ 'e. Prescription stimulants',
+Substance == 'f' ~ 'f. Methamphetamine',
+Substance == 'g' ~ 'g. Inhalants',
+Substance == 'h' ~ 'h. Sedatives or sleeping pills', 
+Substance == 'i' ~ 'i. Hallucinogens', 
+Substance == 'j' ~ 'j. Prescription Opioids',
+Substance == 'k' ~ 'k. Street opioids', 
+Substance == 'l' ~ 'l. Other')) %>%  
+  group_by(Substance) %>%
+  summarize(Count = sum(Use == "Yes", na.rm = TRUE),
+           Percent = round(mean(Use == "Yes", na.rm = TRUE)*100, 1)) %>%
+  knitr::kable()
+```
+
+## Has a friend or relative or anyone else ever expressed concern about your use
+Tobacco products (cigarettes, chewing tobacco, cigars, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_a) & who_assist_ever_q1_a == "Yes") %>%
+  count(who_assist_q1_ever_a) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Alcoholic beverages (beer, wine, spirits, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_b) & who_assist_ever_q1_b == "Yes") %>%
+  count(who_assist_q1_ever_b) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cannabis (marijuana, pot, grass, hash, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_c) & who_assist_ever_q1_c == "Yes") %>%
+  count(who_assist_q1_ever_c) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cocaine (coke, crack, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_d) & who_assist_ever_q1_d == "Yes") %>%
+  count(who_assist_q1_ever_d) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription stimulants (Ritalin, Concerta, Dexedrine, Adderall, diet pills, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_e) & who_assist_ever_q1_e == "Yes") %>%
+  count(who_assist_q1_ever_e) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Methamphetamine (speed, crystal meth, ice, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_f) & who_assist_ever_q1_f == "Yes") %>%
+  count(who_assist_q1_ever_f) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Inhalants (poppers, nitrous, glue, gas, paint thinner, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_g) & who_assist_ever_q1_g == "Yes") %>%
+  count(who_assist_q1_ever_g) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Sedatives or sleeping pills (Valium, Ativan, Xanax, Klonopin, Librium, Rohypnol, GHB, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_h) & who_assist_ever_q1_h == "Yes") %>%
+  count(who_assist_q1_ever_h) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Hallucinogens (Ecstasy, LSD, acid, mushrooms, PCP, Special K, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_i) & who_assist_ever_q1_i == "Yes") %>%
+  count(who_assist_q1_ever_i) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription Opioids
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_j) & who_assist_ever_q1_j == "Yes") %>%
+  count(who_assist_q1_ever_j) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Street opioids (heroin, opium, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_k) & who_assist_ever_q1_k == "Yes") %>%
+  count(who_assist_q1_ever_k) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Other
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_l) & who_assist_ever_q1_l == "Yes") %>%
+  count(who_assist_q1_ever_l) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Have you tried to cut down
+Tobacco products (cigarettes, chewing tobacco, cigars, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_a) & who_assist_ever_q1_a == "Yes") %>%
+  count(who_assist_q2_ever_a) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Alcoholic beverages (beer, wine, spirits, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_b) & who_assist_ever_q1_b == "Yes") %>%
+  count(who_assist_q2_ever_b) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cannabis (marijuana, pot, grass, hash, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_c) & who_assist_ever_q1_c == "Yes") %>%
+  count(who_assist_q2_ever_c) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cocaine (coke, crack, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_d) & who_assist_ever_q1_d == "Yes") %>%
+  count(who_assist_q2_ever_d) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription stimulants (Ritalin, Concerta, Dexedrine, Adderall, diet pills, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_e) & who_assist_ever_q1_e == "Yes") %>%
+  count(who_assist_q2_ever_e) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Methamphetamine (speed, crystal meth, ice, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_f) & who_assist_ever_q1_f == "Yes") %>%
+  count(who_assist_q2_ever_f) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Inhalants (poppers, nitrous, glue, gas, paint thinner, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_g) & who_assist_ever_q1_g == "Yes") %>%
+  count(who_assist_q2_ever_g) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Sedatives or sleeping pills (Valium, Ativan, Xanax, Klonopin, Librium, Rohypnol, GHB, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_h) & who_assist_ever_q1_h == "Yes") %>%
+  count(who_assist_q2_ever_h) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Hallucinogens (Ecstasy, LSD, acid, mushrooms, PCP, Special K, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_i) & who_assist_ever_q1_i == "Yes") %>%
+  count(who_assist_q2_ever_i) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription Opioids
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_j) & who_assist_ever_q1_j == "Yes") %>%
+  count(who_assist_q2_ever_j) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Street opioids (heroin, opium, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_k) & who_assist_ever_q1_k == "Yes") %>%
+  count(who_assist_q2_ever_k) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Other
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_l) & who_assist_ever_q1_l == "Yes") %>%
+  count(who_assist_q2_ever_l) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Any Use Past Three Months
+Tobacco products (cigarettes, chewing tobacco, cigars, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_a) & who_assist_ever_q1_a == "Yes") %>%
+  count(who_assist_q1_p3mth_a) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Alcoholic beverages (beer, wine, spirits, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_b) & who_assist_ever_q1_b == "Yes") %>%
+  count(who_assist_q1_p3mth_b) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cannabis (marijuana, pot, grass, hash, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_c) & who_assist_ever_q1_c == "Yes") %>%
+  count(who_assist_q1_p3mth_c) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cocaine (coke, crack, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_d) & who_assist_ever_q1_d == "Yes") %>%
+  count(who_assist_q1_p3mth_d) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription stimulants (Ritalin, Concerta, Dexedrine, Adderall, diet pills, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_e) & who_assist_ever_q1_e == "Yes") %>%
+  count(who_assist_q1_p3mth_e) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Methamphetamine (speed, crystal meth, ice, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_f) & who_assist_ever_q1_f == "Yes") %>%
+  count(who_assist_q1_p3mth_f) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Inhalants (poppers, nitrous, glue, gas, paint thinner, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_g) & who_assist_ever_q1_g == "Yes") %>%
+  count(who_assist_q1_p3mth_g) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Sedatives or sleeping pills (Valium, Ativan, Xanax, Klonopin, Librium, Rohypnol, GHB, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_h) & who_assist_ever_q1_h == "Yes") %>%
+  count(who_assist_q1_p3mth_h) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Hallucinogens (Ecstasy, LSD, acid, mushrooms, PCP, Special K, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_i) & who_assist_ever_q1_i == "Yes") %>%
+  count(who_assist_q1_p3mth_i) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription Opioids
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_j) & who_assist_ever_q1_j == "Yes") %>%
+  count(who_assist_q1_p3mth_j) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Street opioids (heroin, opium, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_k) & who_assist_ever_q1_k == "Yes") %>%
+  count(who_assist_q1_p3mth_k) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Other
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_ever_q1_l) & who_assist_ever_q1_l == "Yes") %>%
+  count(who_assist_q1_p3mth_l) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Strong Desire of Urge to Use Past Three Months
+Tobacco products (cigarettes, chewing tobacco, cigars, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_a) & who_assist_q1_p3mth_a != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_a) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Alcoholic beverages (beer, wine, spirits, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_b) & who_assist_q1_p3mth_b != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_b) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cannabis (marijuana, pot, grass, hash, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_c) & who_assist_q1_p3mth_c != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_c) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cocaine (coke, crack, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_d) & who_assist_q1_p3mth_d != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_d) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription stimulants (Ritalin, Concerta, Dexedrine, Adderall, diet pills, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_e) & who_assist_q1_p3mth_e != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_e) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Methamphetamine (speed, crystal meth, ice, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_f) & who_assist_q1_p3mth_f != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_f) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Inhalants (poppers, nitrous, glue, gas, paint thinner, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_g) & who_assist_q1_p3mth_g != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_g) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Sedatives or sleeping pills (Valium, Ativan, Xanax, Klonopin, Librium, Rohypnol, GHB, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_h) & who_assist_q1_p3mth_h != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_h) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Hallucinogens (Ecstasy, LSD, acid, mushrooms, PCP, Special K, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_i) & who_assist_q1_p3mth_i != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_i) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription Opioids
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_j) & who_assist_q1_p3mth_j != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_j) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Street opioids (heroin, opium, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_k) & who_assist_q1_p3mth_k != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_k) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Other
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_l) & who_assist_q1_p3mth_l != "Never: not used in the last 3 months") %>%
+  count(who_assist_q2_p3mth_l) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Health, Social, Financial, or Legal Problems Past Three Months
+Tobacco products (cigarettes, chewing tobacco, cigars, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_a) & who_assist_q1_p3mth_a != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_a) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Alcoholic beverages (beer, wine, spirits, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_b) & who_assist_q1_p3mth_b != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_b) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cannabis (marijuana, pot, grass, hash, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_c) & who_assist_q1_p3mth_c != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_c) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cocaine (coke, crack, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_d) & who_assist_q1_p3mth_d != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_d) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription stimulants (Ritalin, Concerta, Dexedrine, Adderall, diet pills, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_e) & who_assist_q1_p3mth_e != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_e) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Methamphetamine (speed, crystal meth, ice, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_f) & who_assist_q1_p3mth_f != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_f) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Inhalants (poppers, nitrous, glue, gas, paint thinner, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_g) & who_assist_q1_p3mth_g != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_g) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Sedatives or sleeping pills (Valium, Ativan, Xanax, Klonopin, Librium, Rohypnol, GHB, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_h) & who_assist_q1_p3mth_h != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_h) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Hallucinogens (Ecstasy, LSD, acid, mushrooms, PCP, Special K, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_i) & who_assist_q1_p3mth_i != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_i) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription Opioids
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_j) & who_assist_q1_p3mth_j != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_j) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Street opioids (heroin, opium, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_k) & who_assist_q1_p3mth_k != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_k) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Other
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_l) & who_assist_q1_p3mth_l != "Never: not used in the last 3 months") %>%
+  count(who_assist_q3_p3mth_l) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Failed to do what was normally expected of you past three months
+Tobacco products (cigarettes, chewing tobacco, cigars, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_a) & who_assist_q1_p3mth_a != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_a) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Alcoholic beverages (beer, wine, spirits, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_b) & who_assist_q1_p3mth_b != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_b) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cannabis (marijuana, pot, grass, hash, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_c) & who_assist_q1_p3mth_c != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_c) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Cocaine (coke, crack, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_d) & who_assist_q1_p3mth_d != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_d) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription stimulants (Ritalin, Concerta, Dexedrine, Adderall, diet pills, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_e) & who_assist_q1_p3mth_e != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_e) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Methamphetamine (speed, crystal meth, ice, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_f) & who_assist_q1_p3mth_f != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_f) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Inhalants (poppers, nitrous, glue, gas, paint thinner, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_g) & who_assist_q1_p3mth_g != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_g) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Sedatives or sleeping pills (Valium, Ativan, Xanax, Klonopin, Librium, Rohypnol, GHB, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_h) & who_assist_q1_p3mth_h != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_h) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Hallucinogens (Ecstasy, LSD, acid, mushrooms, PCP, Special K, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_i) & who_assist_q1_p3mth_i != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_i) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Prescription Opioids
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_j) & who_assist_q1_p3mth_j != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_j) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Street opioids (heroin, opium, etc.)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_k) & who_assist_q1_p3mth_k != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_k) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Other
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  filter(!is.na(who_assist_q1_p3mth_l) & who_assist_q1_p3mth_l != "Never: not used in the last 3 months") %>%
+  count(who_assist_q4_p3mth_l) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Risk Scores and Categories
+```{r}
+who_assist_Q2 <- hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(who_assist_q1_p3mth_a:who_assist_q1_p3mth_l, unique_id) %>%
+  gather(Use_P3M, Response, who_assist_q1_p3mth_a:who_assist_q1_p3mth_l) %>%
+  mutate(Substance = gsub("who_assist_|q1|q2|q3|q4|ever_|p3mth_|_", "", Use_P3M),
+    Use_P3M_recode = 
+  case_when(Response == 'Never: not used in the last 3 months' ~ '0',
+            Response == 'Once or Twice: 1 to 2 times in the past 3 months' ~ '2',
+            Response == 'Monthly: Average of 1 to 3 times per month over the last 3 months' ~ '3',
+            Response == 'Weekly: 1 to 4 times per week' ~ '4',
+            Response == 'Daily or almost daily: 5 to 7 days per week' ~ '6',
+            is.na(Response) ~ '0'),
+           Use_P3M_recode = as.numeric(Use_P3M_recode)) %>%
+  select(unique_id, Substance, Use_P3M_recode)
+
+who_assist_Q3 <- hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(who_assist_q2_p3mth_a:who_assist_q2_p3mth_l, unique_id) %>%
+  gather(Urge_P3M, Response, who_assist_q2_p3mth_a:who_assist_q2_p3mth_l) %>%
+  mutate(Substance = gsub("who_assist_|q1|q2|q3|q4|ever_|p3mth_|_", "", Urge_P3M),
+    Urge_P3M_recode = 
+  case_when(Response == 'Never' ~ '0',
+            Response == 'Once or Twice: 1 to 2 times in the past 3 months' ~ '3',
+            Response == 'Monthly: Average of 1 to 3 times per month over the last 3 months' ~ '4',
+            Response == 'Weekly: 1 to 4 times per week' ~ '5',
+            Response == 'Daily or almost daily: 5 to 7 days per week' ~ '6',
+            is.na(Response) ~ '0'),
+           Urge_P3M_recode = as.numeric(Urge_P3M_recode)) %>%
+  select(unique_id, Substance, Urge_P3M_recode)
+
+who_assist_Q4 <- hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(who_assist_q3_p3mth_a:who_assist_q3_p3mth_l, unique_id) %>%
+  gather(Problems_P3M, Response, who_assist_q3_p3mth_a:who_assist_q3_p3mth_l) %>%
+  mutate(Substance = gsub("who_assist_|q1|q2|q3|q4|ever_|p3mth_|_", "", Problems_P3M),
+    Problems_P3M_recode = 
+  case_when(Response == 'Never' ~ '0',
+            Response == 'Once or Twice: 1 to 2 times in the past 3 months' ~ '4',
+            Response == 'Monthly: Average of 1 to 3 times per month over the last 3 months' ~ '5',
+            Response == 'Weekly: 1 to 4 times per week' ~ '6',
+            Response == 'Daily or almost daily: 5 to 7 days per week' ~ '7',
+            is.na(Response) ~ '0'),
+           Problems_P3M_recode = as.numeric(Problems_P3M_recode)) %>%
+  select(unique_id, Substance, Problems_P3M_recode)
+
+who_assist_Q5 <- hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(who_assist_q4_p3mth_a:who_assist_q4_p3mth_l, unique_id) %>%
+  gather(Failed_P3M, Response, who_assist_q4_p3mth_a:who_assist_q4_p3mth_l) %>%
+  mutate(Substance = gsub("who_assist_|q1|q2|q3|q4|ever_|p3mth_|_", "", Failed_P3M),
+    Failed_P3M_recode = 
+  case_when(Failed_P3M == 'who_assist_q4_p3mth_a' ~ '0',
+            Response == 'Never' & Failed_P3M != 'who_assist_q4_p3mth_l' ~ '0',
+            Response == 'Once or Twice: 1 to 2 times in the past 3 months' & Failed_P3M != 'who_assist_q4_p3mth_l' ~ '5',
+            Response == 'Monthly: Average of 1 to 3 times per month over the last 3 months' & Failed_P3M != 'who_assist_q4_p3mth_l' ~ '6',
+            Response == 'Weekly: 1 to 4 times per week' & Failed_P3M != 'who_assist_q4_p3mth_l' ~ '7',
+            Response == 'Daily or almost daily: 5 to 7 days per week' & Failed_P3M != 'who_assist_q4_p3mth_l' ~ '8',
+            Response == 'Never' & Failed_P3M == 'who_assist_q4_p3mth_l' ~ '0',
+            Response == 'Once or Twice: 1 to 2 times in the past 3 months' & Failed_P3M == 'who_assist_q4_p3mth_l' ~ '4',
+            Response == 'Monthly: Average of 1 to 3 times per month over the last 3 months' & Failed_P3M == 'who_assist_q4_p3mth_l' ~ '5',
+            Response == 'Weekly: 1 to 4 times per week' & Failed_P3M == 'who_assist_q4_p3mth_l' ~ '6',
+            Response == 'Daily or almost daily: 5 to 7 days per week' & Failed_P3M == 'who_assist_q4_p3mth_l' ~ '7',
+            is.na(Response) ~ '0'),
+           Failed_P3M_recode = as.numeric(Failed_P3M_recode)) %>%
+  select(unique_id, Substance, Failed_P3M_recode)
+
+who_assist_Q6 <- hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(who_assist_q1_ever_a:who_assist_q1_ever_l, unique_id) %>%
+  gather(Concern_P3M, Response, who_assist_q1_ever_a:who_assist_q1_ever_l) %>%
+  mutate(Substance = gsub("who_assist_|q1|q2|q3|q4|ever_|p3mth_|_", "", Concern_P3M),
+    Concern_Ever_recode = 
+  case_when(Response == 'No, never' ~ '0',
+            Response == 'Yes, but not in the past 3 months' ~ '3',
+            Response == 'Yes, in the past 3 months' ~ '6',
+            is.na(Response) ~ '0'),
+           Concern_Ever_recode = as.numeric(Concern_Ever_recode)) %>%
+  select(unique_id, Substance, Concern_Ever_recode)
+
+who_assist_Q7 <- hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(who_assist_q2_ever_a:who_assist_q2_ever_l, unique_id) %>%
+  gather(CutDown_Ever, Response, who_assist_q2_ever_a:who_assist_q2_ever_l) %>%
+  mutate(Substance = gsub("who_assist_|q1|q2|q3|q4|ever_|p3mth_|_", "", CutDown_Ever),
+    CutDown_Ever_recode = 
+  case_when(Response == 'No, never' ~ '0',
+            Response == 'Yes, but not in the past 3 months' ~ '3',
+            Response == 'Yes, in the past 3 months' ~ '6',
+            is.na(Response) ~ '0'),
+           CutDown_Ever_recode = as.numeric(CutDown_Ever_recode)) %>%
+  select(unique_id, Substance, CutDown_Ever_recode)
+
+who_assist_risk <- who_assist_Q2 %>%
+  left_join(who_assist_Q3) %>%
+  left_join(who_assist_Q4) %>%
+  left_join(who_assist_Q5) %>%
+  left_join(who_assist_Q6) %>%
+  left_join(who_assist_Q7) %>%
+  mutate(Substance = case_when(Substance == 'a' ~ 'Tobacco products',
+                               Substance == 'b' ~ 'Alcoholic beverages',
+                               Substance == 'c' ~ 'Cannabis',
+                               Substance == 'd' ~ 'Cocaine',
+                               Substance == 'e' ~ 'Prescription stimulants',
+                               Substance == 'f' ~ 'Methamphetamine',
+                               Substance == 'g' ~ 'Inhalants',
+                               Substance == 'h' ~ 'Sedatives',
+                               Substance == 'i' ~ 'Hallucinogens',
+                               Substance == 'j' ~ 'Prescription Opioids',
+                               Substance == 'k' ~ 'Street Opioids',
+                               Substance == 'l' ~ 'Other Drugs'),
+         Risk_Score = Use_P3M_recode + Urge_P3M_recode + Problems_P3M_recode + Failed_P3M_recode + Concern_Ever_recode + CutDown_Ever_recode,
+         Risk_Category = case_when(Risk_Score %in% 0:3 & Substance != 'Alcoholic beverages' ~ 'Lower Risk',
+                          Risk_Score %in% 4:26 & Substance != 'Alcoholic beverages' ~ 'Moderate Risk',
+                          Risk_Score > 26 & Substance != 'Alcoholic beverages' ~ 'High Risk',
+                          Risk_Score %in% 0:10 & Substance == 'Alcoholic beverages' ~ 'Lower Risk',
+                          Risk_Score %in% 11:26 & Substance == 'Alcoholic beverages' ~ 'Moderate Risk',
+                          Risk_Score > 26 & Substance == 'Alcoholic beverages' ~ 'High Risk'),
+         Risk_Category = ordered(Risk_Category, levels = c('Lower Risk','Moderate Risk','High Risk')),
+         Substance = ordered(Substance, levels = c('Tobacco products',
+                                                   'Alcoholic beverages',
+                                                   'Cannabis',
+                                                   'Cocaine',
+                                                   'Prescription stimulants',
+                                                   'Methamphetamine',
+                                                   'Inhalants',
+                                                   'Sedatives',
+                                                   'Hallucinogens',
+                                                   'Prescription Opioids',
+                                                   'Street Opioids',
+                                                   'Other Drugs')))
+```
+
+### Scores
+```{r}
+who_assist_risk %>%
+  group_by(Substance) %>%
+  summarize(n = n(),
+            Mean = round(mean(Risk_Score, na.rm = TRUE), 2),
+            sd = round(sd(Risk_Score, na.rm = TRUE), 2),
+            Median = median(Risk_Score, na.rm = TRUE),
+            IQR = IQR(Risk_Score, na.rm = TRUE),
+            Min = min(Risk_Score, na.rm = TRUE),
+            Max = max(Risk_Score, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+### Categories
+```{r}
+who_assist_risk %>%
+  group_by(Substance) %>%
+  summarize(`Lower Risk` = sum(grepl("Lower Risk", Risk_Category)),
+            `Lower Risk %` = round(mean(grepl("Lower Risk", Risk_Category)) * 100, 1),
+            `Moderate Risk` = sum(grepl("Moderate Risk", Risk_Category)),
+            `Moderate Risk %` = round(mean(grepl("Moderate Risk", Risk_Category)) * 100, 1),
+            `High Risk` = sum(grepl("High Risk", Risk_Category)),
+            `High Risk %` = round(mean(grepl("High Risk", Risk_Category)) * 100, 1),
+            `Total N` = n()) %>%
+  knitr::kable()
+```
+
+## Injection Drug Use
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(who_assist_ever_idu) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+# Lifetime Substance Use Treatment
+## Any Lifetime Substance Use Treatment
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, subs_use_tx_q1:subs_use_tx_q10) %>%
+  gather(Treatment, Response, subs_use_tx_q1:subs_use_tx_q10) %>%
+  group_by(unique_id) %>%
+  summarize(Any = any(grepl("Yes", Response))) %>%
+  summarize(Count = sum(Any),
+            Percent = round(mean(Any) * 100, 1),
+            `Total N` = n()) %>%
+  knitr::kable()
+```
+
+## Specific Types
+```{r}
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(subs_use_tx_q1:subs_use_tx_q10) %>%
+  gather(Treatment, Response) %>%
+  mutate(Treatment = gsub("subs_use_tx_", "", Treatment),
+         Type = case_when(Treatment == 'q1' ~ 'detoxification for alcohol?',
+Treatment == 'q2' ~ 'detoxification for drugs?',
+Treatment == 'q3' ~ 'residential alcohol treatment?',
+Treatment == 'q4' ~ 'residential drug treatment?',
+Treatment == 'q5' ~ 'outpatient alcohol treatment, such as meeting with a counselor in a clinic?',
+Treatment == 'q6' ~ 'outpatient drug treatment, such as meeting with a counselor in a clinic?',
+Treatment == 'q7' ~ '12 step or self-help meetings like AA or NA?',
+Treatment == 'q8' ~ 'A methadone maintenance treatment program?',
+Treatment == 'q9' ~ 'Buprenorphine (also called Suboxone) as prescribed by a health-care provider?',
+Treatment == 'q10' ~ 'Naltrexone as prescribed by a health-care provider?')) %>%
+  group_by(Type) %>%
+  summarize(`Count` = sum(grepl("Yes", Response)),
+            `Percent` = round(mean(grepl("Yes", Response)) * 100, 1),
+            `Total N` = n()) %>%
+  arrange(desc(Count)) %>%
+  knitr::kable()
+```
+
+# Social Support (13-65)
+* Moser, A., Stuck, A. E., Silliman, R. A., Ganz, P. A., & Clough-Gorr, K. M. (2012). The eight-item modified Medical Outcomes Study Social Support Survey: psychometric evaluation showed excellent performance. _Journal of clinical epidemiology_, 65(10), 1107-1116.
+* Sherbourne, C. D., & Stewart, A. L. (1991). The MOS social support survey. _Social science & medicine_, 32(6), 705-714.
+
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("mos_supp")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'None of the Time'=1;'A little of the Time'=2;'Some of the Time'=3;'Most of the Time'=4;'All of the Time'=5;else=NA")) %>%
+    group_by(unique_id) %>%
+  summarize(Social_Support_Total = mean(Numeric_Response, na.rm = TRUE) * 13) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Social_Support_Total, na.rm = TRUE), 2),
+            sd = round(sd(Social_Support_Total, na.rm = TRUE), 2),
+            Median = round(median(Social_Support_Total, na.rm = TRUE), 2),
+            IQR = round(IQR(Social_Support_Total, na.rm = TRUE), 2),
+            Min = min(Social_Support_Total, na.rm = TRUE),
+            Max = max(Social_Support_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("mos_supp")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'None of the Time'=1;'A little of the Time'=2;'Some of the Time'=3;'Most of the Time'=4;'All of the Time'=5;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Provider Trust (0-44)
+* Anderson & Dedrick (1990). Development of the trust in physician scale: A measure to assess interpersonal trust in patient-physician relationships. _Psychological Reports_, 67: 1091-1100.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("trust_provider")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c('trust_provider_q1','trust_provider_q6','trust_provider_q8','trust_provider_q13'), 
+                                   car::recode(Response, "'Strongly Disagree'=0;'Disagree'=1;'Neutral'=2;'Agree'=3;'Strongly Agree'=4;else=NA"),
+                                   car::recode(Response, "'Strongly Disagree'=4;'Disagree'=3;'Neutral'=2;'Agree'=1;'Strongly Agree'=0;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(Provider_Trust_Total = mean(Numeric_Response, na.rm = TRUE) * 11) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Provider_Trust_Total, na.rm = TRUE), 2),
+            sd = round(sd(Provider_Trust_Total, na.rm = TRUE), 2),
+            Median = round(median(Provider_Trust_Total, na.rm = TRUE), 2),
+            IQR = round(IQR(Provider_Trust_Total, na.rm = TRUE), 2),
+            Min = min(Provider_Trust_Total, na.rm = TRUE),
+            Max = max(Provider_Trust_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("trust_provider")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c('trust_provider_q1','trust_provider_q6','trust_provider_q8','trust_provider_q13'), 
+                                   car::recode(Response, "'Strongly Disagree'=0;'Disagree'=1;'Neutral'=2;'Agree'=3;'Strongly Agree'=4;else=NA"),
+                                   car::recode(Response, "'Strongly Disagree'=4;'Disagree'=3;'Neutral'=2;'Agree'=1;'Strongly Agree'=0;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Healthcare System Trust (9-45)
+* Shea, J. A., Micco, E., Dean, L. T., McMurphy, S., Schwartz, J. S., & Armstrong, K. (2008). Development of a revised health care system distrust scale. _Journal of General Internal Medicine_, 23(6), 727-732.
+* Mark A. Hall, (2006). Researching medical trust in the United States. _Journal of Health Organization and Management_, 20(5) 456-467. http://dx.doi.org/10.1108/14777260610701812
+* Rose, A., Peters, N., Shea, J. A., & Armstrong, K. (2004). Development and Testing of the Health Care System Distrust Scale. _Journal of General Internal Medicine_, 19(1), 57-63. http://doi.org/10.1111/j.1525-1497.2004.21146.x.
+
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("trust_healthcare")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c('trust_healthcare_q1','trust_healthcare_q3','trust_healthcare_q7','trust_healthcare_q8'), 
+                                   car::recode(Response, "'Disagree strongly'=1;'Disagree slightly'=2;'Not sure'=3;'Agree slightly'=4;'Agree strongly'=5;else=NA"),
+                                   car::recode(Response, "'Disagree strongly'=5;'Disagree slightly'=4;'Not sure'=3;'Agree slightly'=2;'Agree strongly'=1;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(System_Trust_Total = mean(Numeric_Response, na.rm = TRUE) * 9) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(System_Trust_Total, na.rm = TRUE), 2),
+            sd = round(sd(System_Trust_Total, na.rm = TRUE), 2),
+            Median = round(median(System_Trust_Total, na.rm = TRUE), 2),
+            IQR = round(IQR(System_Trust_Total, na.rm = TRUE), 2),
+            Min = min(System_Trust_Total, na.rm = TRUE),
+            Max = max(System_Trust_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("trust_healthcare")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c('trust_healthcare_q1','trust_healthcare_q3','trust_healthcare_q7','trust_healthcare_q8'), 
+                                   car::recode(Response, "'Disagree strongly'=1;'Disagree slightly'=2;'Not sure'=3;'Agree slightly'=4;'Agree strongly'=5;else=NA"),
+                                   car::recode(Response, "'Disagree strongly'=5;'Disagree slightly'=4;'Not sure'=3;'Agree slightly'=2;'Agree strongly'=1;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Peer Norms
+* Flom PL, Friedman SR, Jose B, Curtis R, Sandoval M: Peer norms regarding drug use and drug selling among household youth in a low-income 'drug supermarket' urban neighborhood. _Drugs Educ Prev Pol_. 2001, 8: 219-232. doi: 10.1080/09687630124478.
+
+## How many people do you know by name or face who are living with HIV or AIDS?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(peer_norms_q4)) %>%
+  summarize(n = n(),
+            Mean = round(mean(peer_norms_q4, na.rm = TRUE)),
+            sd = round(sd(peer_norms_q4, na.rm = TRUE)),
+            Median = round(median(peer_norms_q4, na.rm = TRUE)),
+            IQR = round(IQR(peer_norms_q4, na.rm = TRUE)),
+            Min = min(peer_norms_q4, na.rm = TRUE),
+            Max = max(peer_norms_q4, na.rm = TRUE)) %>%
+  knitr::kable()
+
+hth %>%
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(peer_norms_q4)) %>%
+  ggplot(aes(x = peer_norms_q4)) +
+  geom_density(fill="#4169E1", alpha = .33) +
+  labs(x = "Number of PLWH") +
+  theme_minimal() +
+  theme(text = element_text(size=14))
+```
+
+## External Norms (What other people think about what you should do)
+### ART (0-18)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q13:peer_norms_q15) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q13","peer_norms_q15"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(External_Norms_ART = mean(Numeric_Response, na.rm = TRUE) * 3) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(External_Norms_ART, na.rm = TRUE), 2),
+            sd = round(sd(External_Norms_ART, na.rm = TRUE), 2),
+            Median = round(median(External_Norms_ART, na.rm = TRUE), 2),
+            IQR = round(IQR(External_Norms_ART, na.rm = TRUE), 2),
+            Min = min(External_Norms_ART, na.rm = TRUE),
+            Max = max(External_Norms_ART, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q13:peer_norms_q15) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q13","peer_norms_q15"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+### HIV Care (0-18)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q1:peer_norms_q3) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q1","peer_norms_q3"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(External_Norms_Care = mean(Numeric_Response, na.rm = TRUE) * 3) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(External_Norms_Care, na.rm = TRUE), 2),
+            sd = round(sd(External_Norms_Care, na.rm = TRUE), 2),
+            Median = round(median(External_Norms_Care, na.rm = TRUE), 2),
+            IQR = round(IQR(External_Norms_Care, na.rm = TRUE), 2),
+            Min = min(External_Norms_Care, na.rm = TRUE),
+            Max = max(External_Norms_Care, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q1:peer_norms_q3) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q1","peer_norms_q3"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+## Egocentric/Descriptive Norms (What you think other people are doing)
+### ART (0-24)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q16:peer_norms_q19) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q16","peer_norms_q19"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(Egocentric_Norms_ART = mean(Numeric_Response, na.rm = TRUE) * 4) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Egocentric_Norms_ART, na.rm = TRUE), 2),
+            sd = round(sd(Egocentric_Norms_ART, na.rm = TRUE), 2),
+            Median = round(median(Egocentric_Norms_ART, na.rm = TRUE), 2),
+            IQR = round(IQR(Egocentric_Norms_ART, na.rm = TRUE), 2),
+            Min = min(Egocentric_Norms_ART, na.rm = TRUE),
+            Max = max(Egocentric_Norms_ART, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q16:peer_norms_q19) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q16","peer_norms_q19"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+### HIV Care (0-24)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q5:peer_norms_q8) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q5","peer_norms_q8"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(Egocentric_Norms_Care = mean(Numeric_Response, na.rm = TRUE) * 4) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Egocentric_Norms_Care, na.rm = TRUE), 2),
+            sd = round(sd(Egocentric_Norms_Care, na.rm = TRUE), 2),
+            Median = round(median(Egocentric_Norms_Care, na.rm = TRUE), 2),
+            IQR = round(IQR(Egocentric_Norms_Care, na.rm = TRUE), 2),
+            Min = min(Egocentric_Norms_Care, na.rm = TRUE),
+            Max = max(Egocentric_Norms_Care, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q5:peer_norms_q8) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q5","peer_norms_q8"), 
+                                   car::recode(Response, "'None'=0;'Very little/Very few'=1;'Less than half'=2;'About half'=3;'More than half'=4;'Almost all'=5;'All'=6;else=NA"),
+                                   car::recode(Response, "'None'=6;'Very little/Very few'=5;'Less than half'=4;'About half'=3;'More than half'=2;'Almost all'=1;'All'=0;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+## Internal Norms (How you feel about things others may do)
+### ART (0-12)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q21:peer_norms_q23) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q21","peer_norms_q22"), 
+                                   car::recode(Response, "'Disagree Strongly'=0;'Disagree Somewhat'=1;'Am Neutral'=2;'Agree Somewhat'=3;'Agree Strongly'=4;else=NA"),
+                                   car::recode(Response, "'Disagree Strongly'=4;'Disagree Somewhat'=3;'Am Neutral'=2;'Agree Somewhat'=1;'Agree Strongly'=0;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(Internal_Norms_ART = mean(Numeric_Response, na.rm = TRUE) * 3) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Internal_Norms_ART, na.rm = TRUE), 2),
+            sd = round(sd(Internal_Norms_ART, na.rm = TRUE), 2),
+            Median = round(median(Internal_Norms_ART, na.rm = TRUE), 2),
+            IQR = round(IQR(Internal_Norms_ART, na.rm = TRUE), 2),
+            Min = min(Internal_Norms_ART, na.rm = TRUE),
+            Max = max(Internal_Norms_ART, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q21:peer_norms_q23) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q21","peer_norms_q22"), 
+                                   car::recode(Response, "'Disagree Strongly'=0;'Disagree Somewhat'=1;'Am Neutral'=2;'Agree Somewhat'=3;'Agree Strongly'=4;else=NA"),
+                                   car::recode(Response, "'Disagree Strongly'=4;'Disagree Somewhat'=3;'Am Neutral'=2;'Agree Somewhat'=1;'Agree Strongly'=0;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+### HIV Care (0-12)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q10:peer_norms_q12) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q10","peer_norms_q11"), 
+                                   car::recode(Response, "'Disagree Strongly'=0;'Disagree Somewhat'=1;'Am Neutral'=2;'Agree Somewhat'=3;'Agree Strongly'=4;else=NA"),
+                                   car::recode(Response, "'Disagree Strongly'=4;'Disagree Somewhat'=3;'Am Neutral'=2;'Agree Somewhat'=1;'Agree Strongly'=0;else=NA"))) %>%
+  group_by(unique_id) %>%
+  summarize(Internal_Norms_Care = mean(Numeric_Response, na.rm = TRUE) * 3) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Internal_Norms_Care, na.rm = TRUE), 2),
+            sd = round(sd(Internal_Norms_Care, na.rm = TRUE), 2),
+            Median = round(median(Internal_Norms_Care, na.rm = TRUE), 2),
+            IQR = round(IQR(Internal_Norms_Care, na.rm = TRUE), 2),
+            Min = min(Internal_Norms_Care, na.rm = TRUE),
+            Max = max(Internal_Norms_Care, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, peer_norms_q10:peer_norms_q12) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = ifelse(Item %in% c("peer_norms_q10","peer_norms_q11"), 
+                                   car::recode(Response, "'Disagree Strongly'=0;'Disagree Somewhat'=1;'Am Neutral'=2;'Agree Somewhat'=3;'Agree Strongly'=4;else=NA"),
+                                   car::recode(Response, "'Disagree Strongly'=4;'Disagree Somewhat'=3;'Am Neutral'=2;'Agree Somewhat'=1;'Agree Strongly'=0;else=NA"))) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Sexual Behavior
+## Over your whole life, have you had a sexual partner who was male?  This includes any male partner who you had vaginal, oral, or anal sex with.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q1) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q1, plot = FALSE, prop.r = TRUE))
+```
+
+## Over your whole life, have you had a sexual partner who was female? This includes any female partner who you had vaginal, oral, or anal sex with?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q2) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q2, plot = FALSE, prop.r = TRUE))
+```
+
+## How many serious male partners did you have in the past year, such as a boyfriend, romantic partner, or spouse?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q3) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  group_by(scr1_sex) %>%
+      summarize(n = n(),
+            Mean = round(mean(brief_sex_bx_q3, na.rm = TRUE), 2),
+            sd = round(sd(brief_sex_bx_q3, na.rm = TRUE), 2),
+            Median = round(median(brief_sex_bx_q3, na.rm = TRUE), 2),
+            IQR = round(IQR(brief_sex_bx_q3, na.rm = TRUE), 2),
+            Min = min(brief_sex_bx_q3, na.rm = TRUE),
+            Max = max(brief_sex_bx_q3, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## How many casual male partners did you have in the past year?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q4) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  group_by(scr1_sex) %>%
+      summarize(n = n(),
+            Mean = round(mean(brief_sex_bx_q4, na.rm = TRUE), 2),
+            sd = round(sd(brief_sex_bx_q4, na.rm = TRUE), 2),
+            Median = round(median(brief_sex_bx_q4, na.rm = TRUE), 2),
+            IQR = round(IQR(brief_sex_bx_q4, na.rm = TRUE), 2),
+            Min = min(brief_sex_bx_q4, na.rm = TRUE),
+            Max = max(brief_sex_bx_q4, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## How many other male sexual partners did you have?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q5) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  group_by(scr1_sex) %>%
+      summarize(n = n(),
+            Mean = round(mean(brief_sex_bx_q5, na.rm = TRUE), 2),
+            sd = round(sd(brief_sex_bx_q5, na.rm = TRUE), 2),
+            Median = round(median(brief_sex_bx_q5, na.rm = TRUE), 2),
+            IQR = round(IQR(brief_sex_bx_q5, na.rm = TRUE), 2),
+            Min = min(brief_sex_bx_q5, na.rm = TRUE),
+            Max = max(brief_sex_bx_q5, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## How many serious female partners did you have in the past year, such as a girlfriend, romantic partner, or spouse?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q6) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  group_by(scr1_sex) %>%
+      summarize(n = n(),
+            Mean = round(mean(brief_sex_bx_q6, na.rm = TRUE), 2),
+            sd = round(sd(brief_sex_bx_q6, na.rm = TRUE), 2),
+            Median = round(median(brief_sex_bx_q6, na.rm = TRUE), 2),
+            IQR = round(IQR(brief_sex_bx_q6, na.rm = TRUE), 2),
+            Min = min(brief_sex_bx_q6, na.rm = TRUE),
+            Max = max(brief_sex_bx_q6, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## How many casual female partners did you have in the past year?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q7) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  group_by(scr1_sex) %>%
+      summarize(n = n(),
+            Mean = round(mean(brief_sex_bx_q7, na.rm = TRUE), 2),
+            sd = round(sd(brief_sex_bx_q7, na.rm = TRUE), 2),
+            Median = round(median(brief_sex_bx_q7, na.rm = TRUE), 2),
+            IQR = round(IQR(brief_sex_bx_q7, na.rm = TRUE), 2),
+            Min = min(brief_sex_bx_q7, na.rm = TRUE),
+            Max = max(brief_sex_bx_q7, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## How many other female sexual partners did you have?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q8) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  group_by(scr1_sex) %>%
+      summarize(n = n(),
+            Mean = round(mean(brief_sex_bx_q8, na.rm = TRUE), 2),
+            sd = round(sd(brief_sex_bx_q8, na.rm = TRUE), 2),
+            Median = round(median(brief_sex_bx_q8, na.rm = TRUE), 2),
+            IQR = round(IQR(brief_sex_bx_q8, na.rm = TRUE), 2),
+            Min = min(brief_sex_bx_q8, na.rm = TRUE),
+            Max = max(brief_sex_bx_q8, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## Has your serious partner ever been tested for HIV?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q9) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q9, plot = FALSE, prop.r = TRUE))
+```
+
+## What were his/her test results?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q10) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q10, plot = FALSE, prop.r = TRUE))
+```
+
+## In your whole life, have you exchanged or traded sex for money, drugs, or a place to stay with male partners?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q11) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q11, plot = FALSE, prop.r = TRUE))
+```
+
+## In the past 12 months, have you exchanged or traded sex for money, drugs, or a place to stay with male partners?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q12) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q12, plot = FALSE, prop.r = TRUE))
+```
+
+## In your whole life, have you exchanged or traded sex for money, drugs, or a place to stay with female partners?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q13) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q13, plot = FALSE, prop.r = TRUE))
+```
+
+## In the past 12 months, have you exchanged or traded sex for money, drugs, or a place to stay with female partners?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, brief_sex_bx_q14) %>%
+  left_join(hth %>% filter(redcap_event_name == "screen_1_arm_1") %>% select(unique_id, scr1_sex)) %>%
+  with(descr::crosstab(scr1_sex, brief_sex_bx_q14, plot = FALSE, prop.r = TRUE))
+```
+
+# HIV Social Stigma
+* Rintamaki, L.S., Davis, T.C., Skripkauskas, S., Bennett, C.L. & Wolf, M.S. (2006). Social stigma concerns and HIV medication adherence. _AIDS Patient Care and STDs_, 20(5): 359-368.
+* Sayles, Jennifer N., et al. Development and psychometric assessment of a multidimensional measure of internalized HIV stigma in a sample of HIV-positive adults. _AIDS and Behavior_ 12.5 (2008): 748-758.
+
+## Medication Stigma (3-9)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_soc_stigma_q4:hiv_soc_stigma_q6) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Disagree'=1;'Not sure'=2;'Agree'=3;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Medication_Stigma = mean(Numeric_Response, na.rm = TRUE) * 3) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Medication_Stigma, na.rm = TRUE), 2),
+            sd = round(sd(Medication_Stigma, na.rm = TRUE), 2),
+            Median = round(median(Medication_Stigma, na.rm = TRUE), 2),
+            IQR = round(IQR(Medication_Stigma, na.rm = TRUE), 2),
+            Min = min(Medication_Stigma, na.rm = TRUE),
+            Max = max(Medication_Stigma, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_soc_stigma_q4:hiv_soc_stigma_q6) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Disagree'=1;'Not sure'=2;'Agree'=3;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+## Care Stigma (3-9)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_soc_stigma_q1:hiv_soc_stigma_q3) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Disagree'=1;'Not sure'=2;'Agree'=3;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Care_Stigma = mean(Numeric_Response, na.rm = TRUE) * 3) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Care_Stigma, na.rm = TRUE), 2),
+            sd = round(sd(Care_Stigma, na.rm = TRUE), 2),
+            Median = round(median(Care_Stigma, na.rm = TRUE), 2),
+            IQR = round(IQR(Care_Stigma, na.rm = TRUE), 2),
+            Min = min(Care_Stigma, na.rm = TRUE),
+            Max = max(Care_Stigma, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_soc_stigma_q1:hiv_soc_stigma_q3) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Disagree'=1;'Not sure'=2;'Agree'=3;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+## Disclosure Concern (0-20)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_soc_stigma_q8:hiv_soc_stigma_q12) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'None of the Time'=0;'A little bit  of the Time'=1;'Some  of the Time'=2;'All  of the Time'=4;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Disclosure_Concern = mean(Numeric_Response, na.rm = TRUE) * 5) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Disclosure_Concern, na.rm = TRUE), 2),
+            sd = round(sd(Disclosure_Concern, na.rm = TRUE), 2),
+            Median = round(median(Disclosure_Concern, na.rm = TRUE), 2),
+            IQR = round(IQR(Disclosure_Concern, na.rm = TRUE), 2),
+            Min = min(Disclosure_Concern, na.rm = TRUE),
+            Max = max(Disclosure_Concern, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_soc_stigma_q8:hiv_soc_stigma_q12) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'None of the Time'=0;'A little bit  of the Time'=1;'Some  of the Time'=2;'All  of the Time'=4;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+
+# HIV Medication and Care Self-Efficacy
+* Erlen, J.A., Cha, E.S., Kim, K.H., Caruthers, D. & Sereika, S. (2010). The HIV medication taking self-efficacy scale: Psychometric evaluation. _Journal of Advanced Nursing_, 66(11): 2560-2572.
+
+## Self-Efficacy Beliefs (1-10)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_med_care_q1:hiv_med_care_q13) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'1 not at all confident'=1;'2'=2;'3'=3;'4'=4;'5'=5;'6'=6;'7'=7;'8'=8;'9'=9;'10 Totally confident'=10;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Efficacy = mean(Numeric_Response, na.rm = TRUE)) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Efficacy, na.rm = TRUE), 2),
+            sd = round(sd(Efficacy, na.rm = TRUE), 2),
+            Median = round(median(Efficacy, na.rm = TRUE), 2),
+            IQR = round(IQR(Efficacy, na.rm = TRUE), 2),
+            Min = min(Efficacy, na.rm = TRUE),
+            Max = max(Efficacy, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_med_care_q1:hiv_med_care_q13) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'1 not at all confident'=1;'2'=2;'3'=3;'4'=4;'5'=5;'6'=6;'7'=7;'8'=8;'9'=9;'10 Totally confident'=10;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+## Outcome Expectancies (1-10)
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_med_care_q14:hiv_med_care_q28) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'1 not at all confident'=1;'2'=2;'3'=3;'4'=4;'5'=5;'6'=6;'7'=7;'8'=8;'9'=9;'10 Totally confident'=10;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Expectancy = mean(Numeric_Response, na.rm = TRUE)) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Expectancy, na.rm = TRUE), 2),
+            sd = round(sd(Expectancy, na.rm = TRUE), 2),
+            Median = round(median(Expectancy, na.rm = TRUE), 2),
+            IQR = round(IQR(Expectancy, na.rm = TRUE), 2),
+            Min = min(Expectancy, na.rm = TRUE),
+            Max = max(Expectancy, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_med_care_q14:hiv_med_care_q28) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'1 not at all confident'=1;'2'=2;'3'=3;'4'=4;'5'=5;'6'=6;'7'=7;'8'=8;'9'=9;'10 Totally confident'=10;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# HIV Adherence Self-Efficacy (0-120)
+* Johnson, M. O., Neilands, T. B., Dilworth, S. E., Morin, S. F., Remien, R. H., & Chesney, M. A. (2007). The role of self-efficacy in HIV treatment adherence: validation of the HIV Treatment Adherence Self-Efficacy Scale (HIV-ASES). _Journal of behavioral medicine_, 30(5), 359-370.
+```{r} 
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_ases_q2:hiv_ases_q14) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'0 Cannot do at all'=0;'1'=1;;'2'=2;'3'=3;'4'=4;'5 Moderately centain can do'=5;'6'=6;'7'=7;'8'=8;'9'=9;'10 Completely certain can do'=10;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Efficacy = mean(Numeric_Response, na.rm = TRUE) * 12) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Efficacy, na.rm = TRUE), 2),
+            sd = round(sd(Efficacy, na.rm = TRUE), 2),
+            Median = round(median(Efficacy, na.rm = TRUE), 2),
+            IQR = round(IQR(Efficacy, na.rm = TRUE), 2),
+            Min = min(Efficacy, na.rm = TRUE),
+            Max = max(Efficacy, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, hiv_ases_q2:hiv_ases_q14) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'0 Cannot do at all'=0;'1'=1;;'2'=2;'3'=3;'4'=4;'5 Moderately centain can do'=5;'6'=6;'7'=7;'8'=8;'9'=9;'10 Completely certain can do'=10;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Beliefs about Medicine (8-40)
+* Horne, R., Buick, D., Fisher, M., Leake, H., Cooper, V., & Weinman, J. (2004). Doubts about necessity and concerns about adverse effects: identifying the types of beliefs that are associated with non-adherence to HAART. _International Journal of STD & AIDS_, 15(1), 38-44.
+* Horne, R., Cooper, V., Gellaitry, G., Date, H. L., & Fisher, M. (2007). Patients' perceptions of highly active antiretroviral therapy in relation to treatment uptake and adherence: the utility of the necessity-concerns framework. _JAIDS Journal of Acquired Immune Deficiency Syndromes_, 45(3), 334-341.
+
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, bmq_q1:bmq_q9) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Strongly Disagree'=1;'Disagree'=2;'Neutral'=3;'Agree'=4;'Strongly Agree'=5;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Necessity = mean(Numeric_Response, na.rm = TRUE) * 8) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Necessity, na.rm = TRUE), 2),
+            sd = round(sd(Necessity, na.rm = TRUE), 2),
+            Median = round(median(Necessity, na.rm = TRUE), 2),
+            IQR = round(IQR(Necessity, na.rm = TRUE), 2),
+            Min = min(Necessity, na.rm = TRUE),
+            Max = max(Necessity, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, bmq_q1:bmq_q9) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Strongly Disagree'=1;'Disagree'=2;'Neutral'=3;'Agree'=4;'Strongly Agree'=5;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# HIV Conspiracy Beliefs (10-50)
+Bogart, Laura M., Glenn J. Wagner, Harold D. Green, Matt G. Mutchler, David J. Klein, Bryce McDavitt, Sean J. Lawrence, and Charles L. Hilliard (2016). Medical mistrust among social network members may contribute to antiretroviral treatment nonadherence in African Americans living with HIV. _Social Science & Medicine_, 164: 133-140.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("hiv_consp")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Disagree strongly'=1;'Disagree slightly'=2;'Not sure'=3;'Agree slightly'=4;'Agree strongly'=5;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Conspiracy_Total = mean(Numeric_Response, na.rm = TRUE) * 10) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Conspiracy_Total, na.rm = TRUE), 2),
+            sd = round(sd(Conspiracy_Total, na.rm = TRUE), 2),
+            Median = round(median(Conspiracy_Total, na.rm = TRUE), 2),
+            IQR = round(IQR(Conspiracy_Total, na.rm = TRUE), 2),
+            Min = min(Conspiracy_Total, na.rm = TRUE),
+            Max = max(Conspiracy_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("hiv_consp")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Disagree strongly'=1;'Disagree slightly'=2;'Not sure'=3;'Agree slightly'=4;'Agree strongly'=5;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# HIV Care Behavioral Skills
+
+* The LifeWindows Project Team. The LifeWindows Information Motivation Behavioral Skills ART Adherence Questionnaire (LW-IMB-AAQ). 2006. Center for Health, Intervention, and Prevention. University of Connecticut.
+
+## There are times when it is hard for me to take my HIV medications when I drink alcohol or use street drugs.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, bx_skill_q1) %>%
+  count(bx_skill_q1) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Total Behavioral Skills Score (0-52)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, bx_skill_q3:bx_skill_q15) %>%
+  gather(Item, Response, bx_skill_q3:bx_skill_q15) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Very hard'=0;'Hard'=1;'Sometimes hard, sometimes easy'=2;'Easy'=3;'Very easy'=4;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Skills_Total = mean(Numeric_Response, na.rm = TRUE) * 13) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Skills_Total, na.rm = TRUE), 2),
+            sd = round(sd(Skills_Total, na.rm = TRUE), 2),
+            Median = round(median(Skills_Total, na.rm = TRUE), 2),
+            IQR = round(IQR(Skills_Total, na.rm = TRUE), 2),
+            Min = min(Skills_Total, na.rm = TRUE),
+            Max = max(Skills_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, bx_skill_q3:bx_skill_q15) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Very hard'=0;'Hard'=1;'Sometimes hard, sometimes easy'=2;'Easy'=3;'Very easy'=4;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Patient Health Questionnaire Depression Screen (PHQ-9)
+
+* Kroencke, K., Spitzer, R., & Williams, J. (2001). The PHQ-9: validity of a brief depression severity measure [Electronic version]. _Journal of General Internal Medicine_, 16(9), 606-13.
+
+## Severity Score (0-27)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("phq_")) %>%
+  gather(Item, Response, phq_q1:phq_q10) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all'=0;'Several days'=1;'More than half the days'=2;'Nearly every day'=3;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(PHQ9_Total = mean(Numeric_Response, na.rm = TRUE) * 9) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(PHQ9_Total, na.rm = TRUE), 2),
+            sd = round(sd(PHQ9_Total, na.rm = TRUE), 2),
+            Median = median(PHQ9_Total, na.rm = TRUE),
+            IQR = round(IQR(PHQ9_Total, na.rm = TRUE), 2),
+            Min = min(PHQ9_Total, na.rm = TRUE),
+            Max = max(PHQ9_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## Severity Score Categories
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("phq_")) %>%
+  gather(Item, Response, phq_q1:phq_q10) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all'=0;'Several days'=1;'More than half the days'=2;'Nearly every day'=3;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(PHQ9_Total = mean(Numeric_Response, na.rm = TRUE) * 9) %>%
+  mutate(PHQ_Cat = cut(PHQ9_Total, c(0,4,9,14,19,28), include.lowest = TRUE),
+         PHQ_Cat = car::recode(PHQ_Cat, "'[0,4]'='Minimal Depression';'(4,9]'='Mild Depression';'(9,14]'='Moderate Depression';'(14,19]'='Moderately Severe Depression';'(19,27]'='Severe Depression'"),
+         PHQ_Cat = ordered(PHQ_Cat, levels=c('Minimal Depression','Mild Depression','Moderate Depression','Moderately Severe Depression','Severe Depression'))) %>%
+  count(PHQ_Cat) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Likely Depression
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("phq_")) %>%
+  mutate(LD1 = ifelse(phq_q1 == 'More than half the days' | phq_q1 == 'Nearly every day', 1, 0),
+         LD2 = ifelse(phq_q2 == 'More than half the days' | phq_q2 == 'Nearly every day', 1, 0),
+         LD3 = ifelse(phq_q3 == 'More than half the days' | phq_q3 == 'Nearly every day', 1, 0),
+         LD4 = ifelse(phq_q4 == 'More than half the days' | phq_q4 == 'Nearly every day', 1, 0),
+         LD5 = ifelse(phq_q5 == 'More than half the days' | phq_q5 == 'Nearly every day', 1, 0),
+         LD6 = ifelse(phq_q7 == 'More than half the days' | phq_q7 == 'Nearly every day', 1, 0),
+         LD7 = ifelse(phq_q8 == 'More than half the days' | phq_q8 == 'Nearly every day', 1, 0),
+         LD8 = ifelse(phq_q9 == 'More than half the days' | phq_q9 == 'Nearly every day', 1, 0),
+         LD9 = ifelse(phq_q10 == 'Several days' | phq_q10 == 'More than half the days' | phq_q10 == 'Nearly every day', 1, 0),
+         `Likely Depression` = ifelse((LD1 + LD2 + LD3 + LD4 + LD5 + LD6 + LD7 + LD8 + LD9) >= 4, "Yes", "No")) %>%
+  count(`Likely Depression`) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("phq_")) %>%
+  gather(Item, Response, phq_q1:phq_q10) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all'=0;'Several days'=1;'More than half the days'=2;'Nearly every day'=3;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Generalized Anxiety Disorder Screen (GAD-7)
+
+* Spitzer, R. L., Kroenke, K., Williams, J. B., & Löwe, B. (2006). A brief measure for assessing generalized anxiety disorder: the GAD-7. _Archives of internal medicine_, 166(10), 1092-1097.
+
+* "A score of 10 or greater on the GAD-7 represents a reasonable cut point for identifying cases of GAD. Cut points of 5, 10, and 15 might be interpreted as representing mild, moderate, and severe levels of anxiety on the GAD-7" (Spitzer et al. 2006)
+
+## Severity Score (0-21)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, gad_q1:gad_q8) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all'=0;'Several days'=1;'More than half the days'=2;'Nearly every day'=3;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(GAD_Total = mean(Numeric_Response, na.rm = TRUE) * 7) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(GAD_Total, na.rm = TRUE), 2),
+            sd = round(sd(GAD_Total, na.rm = TRUE), 2),
+            Median = median(GAD_Total, na.rm = TRUE),
+            IQR = round(IQR(GAD_Total, na.rm = TRUE), 2),
+            Min = min(GAD_Total, na.rm = TRUE),
+            Max = max(GAD_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## Severity Score Categories
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, gad_q1:gad_q8) %>%
+  gather(Item, Response, gad_q1:gad_q8) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all'=0;'Several days'=1;'More than half the days'=2;'Nearly every day'=3;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(GAD_Total = mean(Numeric_Response, na.rm = TRUE) * 7) %>%
+  mutate(GAD_Cat = cut(GAD_Total, c(0,5,10,15,21), include.lowest = TRUE),
+         GAD_Cat = car::recode(GAD_Cat, "'[0,5]'='Less than mild';'(5,10]'='Mild';'(10,15]'='Moderate';'(15,21]'='Severe'"),
+         GAD_Cat = ordered(GAD_Cat, levels=c('Less than mild','Mild','Moderate','Severe'))) %>%
+  count(GAD_Cat) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Likely Generalized Anxiety Disorder
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, gad_q1:gad_q8) %>%
+  gather(Item, Response, gad_q1:gad_q8) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all'=0;'Several days'=1;'More than half the days'=2;'Nearly every day'=3;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(GAD_Total = mean(Numeric_Response, na.rm = TRUE) * 7) %>%
+  mutate(`Likely GAD` = cut(GAD_Total, c(0,10,21), include.lowest = TRUE),
+         `Likely GAD` = car::recode(`Likely GAD`, "'[0,10]'='No';'(10,21]'='Yes'")) %>%
+  count(`Likely GAD`) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, gad_q1:gad_q8) %>%
+  gather(Item, Response, gad_q1:gad_q8) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all'=0;'Several days'=1;'More than half the days'=2;'Nearly every day'=3;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# PTSD Screen
+
+*Cameron, R. P., & Gusman, D. (2003). The primary care PTSD screen (PC-PTSD): development and operating characteristics. _Primary Care Psychiatry_, 9(1), 9-14.
+
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("ptsd")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Item = case_when(Item == 'ptsd_q1' ~ 'Have had nightmares about it or thought about it when you did not want to?',
+                          Item == 'ptsd_q2' ~ 'Tried not to think about it or went out of your way to avoid situations that reminded you of it?',
+                          Item == 'ptsd_q3' ~ 'Were constantly on guard, watchful, or easily startled?',
+                          Item == 'ptsd_q4' ~ 'Felt numb or detached from others, activities, or your surroundings?'),
+         Response = ordered(Response, levels = c("Yes","No","Don't Know","Refuse to Answer"))) %>%
+  filter(!is.na(Response)) %>%
+  with(descr::crosstab(Item, Response, plot = FALSE, prop.r = TRUE))
+```
+
+## Likely PTSD
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("ptsd")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Response = car::recode(Response, "'Yes'=1;NA=NA;else=0")) %>%
+  group_by(unique_id) %>%
+  summarize(Number_Yes = sum(Response, na.rm = TRUE),
+            `Likely PTSD` = ifelse(Number_Yes >= 3, "Yes", "No")) %>%
+  count(`Likely PTSD`) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+# SF-12 Health Status
+* Ware Jr, J. E., Kosinski, M., & Keller, S. D. (1996). A 12-Item Short-Form Health Survey: construction of scales and preliminary tests of reliability and validity. _Medical care_, 34(3), 220-233.
+
+* Jenkinson, C., Layte, R., Jenkinson, D., Lawrence, K., Petersen, S., Paice, C., & Stradling, J. (1997). 
+A shorter form health survey: can the SF-12 replicate results from the SF-36 in longitudinal studies?. _Journal of Public Health_, 19(2), 179-186.
+
+* http://www.rand.org/health/surveys_tools/mos/36-item-short-form/scoring.html
+
+## Overall Rating of Health
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  count(sfh_q1) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Physical Health POMP Scoring (0-100)
+```{r}
+hth %>%
+ filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+ select(unique_id, sfh_q1, sfh_q3, sfh_q4, sfh_q5, sfh_q6, sfh_q9) %>%
+ mutate(sfh_q1 = car::recode(sfh_q1, "'Excellent'=4;'Very Good'=3;'Good'=2;'Fair'=1;'Poor'=0;else=NA", as.factor.result = FALSE) / 4,
+        sfh_q3 = car::recode(sfh_q3, "'Yes, limited a lot'=0;'Yes, limited a little'=1;'No, not limited at all'=2;else=NA", as.factor.result = FALSE) / 2,
+        sfh_q4 = car::recode(sfh_q4, "'Yes, limited a lot'=0;'Yes, limited a little'=1;'No, not limited at all'=2;else=NA", as.factor.result = FALSE) / 2,
+        sfh_q5 = car::recode(sfh_q5, "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q6 = car::recode(sfh_q6, "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q9 = car::recode(sfh_q9, "'Not at all'=4;'A little bit'=3;'Moderately'=2;'Quite a bit'=1;'Extremely'=0;else=NA", as.factor.result = FALSE) / 4) %>%
+  gather(Item, Response, -unique_id) %>%
+  group_by(unique_id) %>%
+  summarize(Physical_POMP = mean(Response, na.rm = TRUE) * 100) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Physical_POMP, na.rm = TRUE), 2),
+            sd = round(sd(Physical_POMP, na.rm = TRUE), 2),
+            Median = round(median(Physical_POMP, na.rm = TRUE), 2),
+            IQR = round(IQR(Physical_POMP, na.rm = TRUE), 2),
+            Min = min(Physical_POMP, na.rm = TRUE),
+            Max = max(Physical_POMP, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>%
+ filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+ select(unique_id, sfh_q1, sfh_q3, sfh_q4, sfh_q5, sfh_q6, sfh_q9) %>%
+ mutate(sfh_q1 = car::recode(sfh_q1, "'Excellent'=4;'Very Good'=3;'Good'=2;'Fair'=1;'Poor'=0;else=NA", as.factor.result = FALSE) / 4,
+        sfh_q3 = car::recode(sfh_q3, "'Yes, limited a lot'=0;'Yes, limited a little'=1;'No, not limited at all'=2;else=NA", as.factor.result = FALSE) / 2,
+        sfh_q4 = car::recode(sfh_q4, "'Yes, limited a lot'=0;'Yes, limited a little'=1;'No, not limited at all'=2;else=NA", as.factor.result = FALSE) / 2,
+        sfh_q5 = car::recode(sfh_q5, "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q6 = car::recode(sfh_q6, "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q9 = car::recode(sfh_q9, "'Not at all'=4;'A little bit'=3;'Moderately'=2;'Quite a bit'=1;'Extremely'=0;else=NA", as.factor.result = FALSE) / 4) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+## Mental Health POMP Scoring (0-100)
+```{r}
+hth %>%
+ filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+ select(unique_id, sfh_q12, sfh_q14, sfh_q7, sfh_q8, sfh_q11, sfh_q13) %>%
+ mutate(sfh_q12 = car::recode(sfh_q12, "'All of the time'=5;'Most of the time'=4;'A good bit of the time'=3;'Some of the time'=2;'A little of the time'=1;'None of the time'=0;else=NA", as.factor.result = FALSE) / 5,
+        sfh_q14 = car::recode(sfh_q14, "'All of the time'=0;'Most of the time'=1;'A good bit of the time'=2;'Some of the time'=3;'A little of the time'=4;'None of the time'=5;else=NA", as.factor.result = FALSE) / 5,
+        sfh_q7  = car::recode(sfh_q7,  "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q8  = car::recode(sfh_q8,  "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q11 = car::recode(sfh_q11, "'All of the time'=5;'Most of the time'=4;'A good bit of the time'=3;'Some of the time'=2;'A little of the time'=1;'None of the time'=0;else=NA", as.factor.result = FALSE) / 5,
+        sfh_q13 = car::recode(sfh_q13, "'All of the time'=0;'Most of the time'=1;'A good bit of the time'=2;'Some of the time'=3;'A little of the time'=4;'None of the time'=5;else=NA", as.factor.result = FALSE) / 5) %>%
+  gather(Item, Response, -unique_id) %>%
+  group_by(unique_id) %>%
+  summarize(Mental_POMP = mean(Response, na.rm = TRUE) * 100) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Mental_POMP, na.rm = TRUE), 2),
+            sd = round(sd(Mental_POMP, na.rm = TRUE), 2),
+            Median = round(median(Mental_POMP, na.rm = TRUE), 2),
+            IQR = round(IQR(Mental_POMP, na.rm = TRUE), 2),
+            Min = min(Mental_POMP, na.rm = TRUE),
+            Max = max(Mental_POMP, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>%
+ filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+ select(unique_id, sfh_q12, sfh_q14, sfh_q7, sfh_q8, sfh_q11, sfh_q13) %>%
+ mutate(sfh_q12 = car::recode(sfh_q12, "'All of the time'=5;'Most of the time'=4;'A good bit of the time'=3;'Some of the time'=2;'A little of the time'=1;'None of the time'=0;else=NA", as.factor.result = FALSE) / 5,
+        sfh_q14 = car::recode(sfh_q14, "'All of the time'=0;'Most of the time'=1;'A good bit of the time'=2;'Some of the time'=3;'A little of the time'=4;'None of the time'=5;else=NA", as.factor.result = FALSE) / 5,
+        sfh_q7  = car::recode(sfh_q7,  "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q8  = car::recode(sfh_q8,  "'No'=1;'Yes'=0;else=NA", as.factor.result = FALSE) / 1,
+        sfh_q11 = car::recode(sfh_q11, "'All of the time'=5;'Most of the time'=4;'A good bit of the time'=3;'Some of the time'=2;'A little of the time'=1;'None of the time'=0;else=NA", as.factor.result = FALSE) / 5,
+        sfh_q13 = car::recode(sfh_q13, "'All of the time'=0;'Most of the time'=1;'A good bit of the time'=2;'Some of the time'=3;'A little of the time'=4;'None of the time'=5;else=NA", as.factor.result = FALSE) / 5) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+```{r}
+sf_weights <- read.xlsx("C:/Dbox/2016 MASTER HTH2 MOST FOLDER/R Code/Baseline Scoring/weights.xlsx", sheet = 1)
+```
+
+## Physical Health Norm-Based Scoring
+```{r}
+hth %>%
+  mutate(
+PF02_1 = ifelse(sfh_q3 == "Yes, limited a lot", 1, 0),
+PF02_2 = ifelse(sfh_q3 == "Yes, limited a little", 1, 0),
+PF04_1 = ifelse(sfh_q4 == "Yes, limited a lot", 1, 0),
+PF04_2 = ifelse(sfh_q4 == "Yes, limited a little", 1, 0),
+RP2_1 = ifelse(sfh_q5 == "Yes", 1, 0),
+RP3_1 = ifelse(sfh_q6 == "Yes", 1, 0),
+BP2_1 = ifelse(sfh_q9 == "Extremely", 1, 0),
+BP2_2 = ifelse(sfh_q9 == "Quite a bit", 1, 0),
+BP2_3 = ifelse(sfh_q9 == "Moderately", 1, 0),
+BP2_4 = ifelse(sfh_q9 == "A little bit", 1, 0),
+GH1_1 = ifelse(sfh_q1 == "Poor", 1, 0),
+GH1_2 = ifelse(sfh_q1 == "Fair", 1, 0),
+GH1_3 = ifelse(sfh_q1 == "Good", 1, 0),
+GH1_4 = ifelse(sfh_q1 == "Very Good", 1, 0),
+VT2_1 = ifelse(sfh_q12 == "None of the time", 1, 0),
+VT2_2 = ifelse(sfh_q12 == "A little of the time", 1, 0),
+VT2_3 = ifelse(sfh_q12 == "Some of the time", 1, 0),
+VT2_4 = ifelse(sfh_q12 == "A good bit of the time", 1, 0),
+VT2_5 = ifelse(sfh_q12 == "Most of the time", 1, 0),
+SF2_1 = ifelse(sfh_q14 == "All of the time", 1, 0),
+SF2_2 = ifelse(sfh_q14 == "Most of the time", 1, 0),
+SF2_3 = ifelse(sfh_q14 == "A good bit of the time", 1, 0),
+SF2_4 = ifelse(sfh_q14 == "Some of the time", 1, 0),
+RE2_1 = ifelse(sfh_q7 == "Yes", 1, 0),
+RE3_1 = ifelse(sfh_q8 == "Yes", 1, 0),
+MH3_1 = ifelse(sfh_q11 == "None of the time", 1, 0),
+MH3_2 = ifelse(sfh_q11 == "A little of the time", 1, 0),
+MH3_3 = ifelse(sfh_q11 == "Some of the time", 1, 0),
+MH3_4 = ifelse(sfh_q11 == "A good bit of the time", 1, 0),
+MH3_5 = ifelse(sfh_q11 == "Most of the time", 1, 0),
+MH4_1 = ifelse(sfh_q13 == "All of the time", 1, 0),
+MH4_2 = ifelse(sfh_q13 == "Most of the time", 1, 0),
+MH4_3 = ifelse(sfh_q13 == "A good bit of the time", 1, 0),
+MH4_4 = ifelse(sfh_q13 == "Some of the time", 1, 0),
+MH4_5 = ifelse(sfh_q13 == "A little of the time", 1, 0),
+SFH_Constant = 1,
+PCS = PF02_1*sf_weights$physical[1] +
+      PF02_2*sf_weights$physical[2] +
+      PF04_1*sf_weights$physical[3] +
+      PF04_2*sf_weights$physical[4] +
+      RP2_1*sf_weights$physical[5] +
+      RP3_1*sf_weights$physical[6] +
+      BP2_1*sf_weights$physical[7] +
+      BP2_2*sf_weights$physical[8] +
+      BP2_3*sf_weights$physical[9] +
+      BP2_4*sf_weights$physical[10] +
+      GH1_1*sf_weights$physical[11] +
+      GH1_2*sf_weights$physical[12] +
+      GH1_3*sf_weights$physical[13] +
+      GH1_4*sf_weights$physical[14] +
+      VT2_1*sf_weights$physical[15] +
+      VT2_2*sf_weights$physical[16] +
+      VT2_3*sf_weights$physical[17] +
+      VT2_4*sf_weights$physical[18] +
+      VT2_5*sf_weights$physical[19] +
+      SF2_1*sf_weights$physical[20] +
+      SF2_2*sf_weights$physical[21] +
+      SF2_3*sf_weights$physical[22] +
+      SF2_4*sf_weights$physical[23] +
+      RE2_1*sf_weights$physical[24] +
+      RE3_1*sf_weights$physical[25] +
+      MH3_1*sf_weights$physical[26] +
+      MH3_2*sf_weights$physical[27] +
+      MH3_3*sf_weights$physical[28] +
+      MH3_4*sf_weights$physical[29] +
+      MH3_5*sf_weights$physical[30] +
+      MH4_1*sf_weights$physical[31] +
+      MH4_2*sf_weights$physical[32] +
+      MH4_3*sf_weights$physical[33] +
+      MH4_4*sf_weights$physical[34] +
+      MH4_5*sf_weights$physical[35] +
+      SFH_Constant*sf_weights$physical[36]) %>%
+  select(PCS) %>% filter(!is.na(PCS)) %>%
+      summarize(n = n(),
+            Mean = round(mean(PCS, na.rm = TRUE), 2),
+            sd = round(sd(PCS, na.rm = TRUE), 2),
+            Median = round(median(PCS, na.rm = TRUE), 2),
+            IQR = round(IQR(PCS, na.rm = TRUE), 2),
+            Min = min(PCS, na.rm = TRUE),
+            Max = max(PCS, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+## Mental Health Norm-Based Scoring
+```{r}
+hth %>%
+  mutate(
+PF02_1 = ifelse(sfh_q3 == "Yes, limited a lot", 1, 0),
+PF02_2 = ifelse(sfh_q3 == "Yes, limited a little", 1, 0),
+PF04_1 = ifelse(sfh_q4 == "Yes, limited a lot", 1, 0),
+PF04_2 = ifelse(sfh_q4 == "Yes, limited a little", 1, 0),
+RP2_1 = ifelse(sfh_q5 == "Yes", 1, 0),
+RP3_1 = ifelse(sfh_q6 == "Yes", 1, 0),
+BP2_1 = ifelse(sfh_q9 == "Extremely", 1, 0),
+BP2_2 = ifelse(sfh_q9 == "Quite a bit", 1, 0),
+BP2_3 = ifelse(sfh_q9 == "Moderately", 1, 0),
+BP2_4 = ifelse(sfh_q9 == "A little bit", 1, 0),
+GH1_1 = ifelse(sfh_q1 == "Poor", 1, 0),
+GH1_2 = ifelse(sfh_q1 == "Fair", 1, 0),
+GH1_3 = ifelse(sfh_q1 == "Good", 1, 0),
+GH1_4 = ifelse(sfh_q1 == "Very Good", 1, 0),
+VT2_1 = ifelse(sfh_q12 == "None of the time", 1, 0),
+VT2_2 = ifelse(sfh_q12 == "A little of the time", 1, 0),
+VT2_3 = ifelse(sfh_q12 == "Some of the time", 1, 0),
+VT2_4 = ifelse(sfh_q12 == "A good bit of the time", 1, 0),
+VT2_5 = ifelse(sfh_q12 == "Most of the time", 1, 0),
+SF2_1 = ifelse(sfh_q14 == "All of the time", 1, 0),
+SF2_2 = ifelse(sfh_q14 == "Most of the time", 1, 0),
+SF2_3 = ifelse(sfh_q14 == "A good bit of the time", 1, 0),
+SF2_4 = ifelse(sfh_q14 == "Some of the time", 1, 0),
+RE2_1 = ifelse(sfh_q7 == "Yes", 1, 0),
+RE3_1 = ifelse(sfh_q8 == "Yes", 1, 0),
+MH3_1 = ifelse(sfh_q11 == "None of the time", 1, 0),
+MH3_2 = ifelse(sfh_q11 == "A little of the time", 1, 0),
+MH3_3 = ifelse(sfh_q11 == "Some of the time", 1, 0),
+MH3_4 = ifelse(sfh_q11 == "A good bit of the time", 1, 0),
+MH3_5 = ifelse(sfh_q11 == "Most of the time", 1, 0),
+MH4_1 = ifelse(sfh_q13 == "All of the time", 1, 0),
+MH4_2 = ifelse(sfh_q13 == "Most of the time", 1, 0),
+MH4_3 = ifelse(sfh_q13 == "A good bit of the time", 1, 0),
+MH4_4 = ifelse(sfh_q13 == "Some of the time", 1, 0),
+MH4_5 = ifelse(sfh_q13 == "A little of the time", 1, 0),
+SFH_Constant = 1,
+MCS = PF02_1*sf_weights$mental[1] +
+      PF02_2*sf_weights$mental[2] +
+      PF04_1*sf_weights$mental[3] +
+      PF04_2*sf_weights$mental[4] +
+      RP2_1*sf_weights$mental[5] +
+      RP3_1*sf_weights$mental[6] +
+      BP2_1*sf_weights$mental[7] +
+      BP2_2*sf_weights$mental[8] +
+      BP2_3*sf_weights$mental[9] +
+      BP2_4*sf_weights$mental[10] +
+      GH1_1*sf_weights$mental[11] +
+      GH1_2*sf_weights$mental[12] +
+      GH1_3*sf_weights$mental[13] +
+      GH1_4*sf_weights$mental[14] +
+      VT2_1*sf_weights$mental[15] +
+      VT2_2*sf_weights$mental[16] +
+      VT2_3*sf_weights$mental[17] +
+      VT2_4*sf_weights$mental[18] +
+      VT2_5*sf_weights$mental[19] +
+      SF2_1*sf_weights$mental[20] +
+      SF2_2*sf_weights$mental[21] +
+      SF2_3*sf_weights$mental[22] +
+      SF2_4*sf_weights$mental[23] +
+      RE2_1*sf_weights$mental[24] +
+      RE3_1*sf_weights$mental[25] +
+      MH3_1*sf_weights$mental[26] +
+      MH3_2*sf_weights$mental[27] +
+      MH3_3*sf_weights$mental[28] +
+      MH3_4*sf_weights$mental[29] +
+      MH3_5*sf_weights$mental[30] +
+      MH4_1*sf_weights$mental[31] +
+      MH4_2*sf_weights$mental[32] +
+      MH4_3*sf_weights$mental[33] +
+      MH4_4*sf_weights$mental[34] +
+      MH4_5*sf_weights$mental[35] +
+      SFH_Constant*sf_weights$mental[36]) %>%
+  select(MCS) %>% filter(!is.na(MCS)) %>%
+      summarize(n = n(),
+            Mean = round(mean(MCS, na.rm = TRUE), 2),
+            sd = round(sd(MCS, na.rm = TRUE), 2),
+            Median = round(median(MCS, na.rm = TRUE), 2),
+            IQR = round(IQR(MCS, na.rm = TRUE), 2),
+            Min = min(MCS, na.rm = TRUE),
+            Max = max(MCS, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+# Satisfaction with HIV Care
+* SPNS Cooperative Agreement Evaluation Module Summary Book (Huba & Melchior, 1995)
+* Huba, G. J., Melchior, L. A., De Veauuse, N. F., Hillary, K., Singer, B., & Marconi, K. (1998). A national program of innovative AIDS care projects and their evaluation. _Home health care services quarterly_, 17(1), 3-30.
+* Huba, G. J., & Melchior, L. A. (2001). _The next generation of AIDS patients: service needs and vulnerabilities_. Psychology Press.
+
+## Overall, you think the services there are:
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(spns_q1)) %>%
+    group_by(spns_q1) %>%
+  tally() %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+## Overall Satisfaction (0-100)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, spns_q1:spns_q14) %>%
+  mutate(spns_q1 = car::recode(spns_q1, "'Poor'=0;'Fair'=1;'Good'=2;'Very Good'=3;'Excellent'=4;else=NA", as.factor.result = FALSE) / 4,
+         spns_q2 = car::recode(spns_q2, "'Not at all helpful'=0;'Not very helpful'=1;'Helpful'=2;'Very helpful'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q3 = car::recode(spns_q3, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q4 = car::recode(spns_q4, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q5 = car::recode(spns_q5, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q6 = car::recode(spns_q6, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q7 = car::recode(spns_q7, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q8 = car::recode(spns_q8, "'Definitely not'=0;'Probably not'=1;'Probably'=2;'Definitely yes'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q9 = car::recode(spns_q9, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q10 = car::recode(spns_q10, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q11 = car::recode(spns_q11, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q12 = car::recode(spns_q12, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q13 = car::recode(spns_q13, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q14 = car::recode(spns_q14, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3) %>%
+  gather(Item, Response, spns_q1:spns_q14) %>%
+  group_by(unique_id) %>%
+  summarize(Satisfaction_Total = mean(Response, na.rm = TRUE) * 100) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Satisfaction_Total, na.rm = TRUE), 2),
+            sd = round(sd(Satisfaction_Total, na.rm = TRUE), 2),
+            Median = round(median(Satisfaction_Total, na.rm = TRUE), 2),
+            IQR = round(IQR(Satisfaction_Total, na.rm = TRUE), 2),
+            Min = min(Satisfaction_Total, na.rm = TRUE),
+            Max = max(Satisfaction_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, spns_q1:spns_q14) %>%
+  mutate(spns_q1 = car::recode(spns_q1, "'Poor'=0;'Fair'=1;'Good'=2;'Very Good'=3;'Excellent'=4;else=NA", as.factor.result = FALSE) / 4,
+         spns_q2 = car::recode(spns_q2, "'Not at all helpful'=0;'Not very helpful'=1;'Helpful'=2;'Very helpful'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q3 = car::recode(spns_q3, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q4 = car::recode(spns_q4, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q5 = car::recode(spns_q5, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q6 = car::recode(spns_q6, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q7 = car::recode(spns_q7, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q8 = car::recode(spns_q8, "'Definitely not'=0;'Probably not'=1;'Probably'=2;'Definitely yes'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q9 = car::recode(spns_q9, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q10 = car::recode(spns_q10, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q11 = car::recode(spns_q11, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q12 = car::recode(spns_q12, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q13 = car::recode(spns_q13, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3,
+         spns_q14 = car::recode(spns_q14, "'Rarely or never'=0;'Sometimes'=1;'Most times'=2;'All of the time'=3;else=NA", as.factor.result = FALSE) / 3) %>%
+  select(spns_q1:spns_q8) %>%
+  psych::alpha()
+```
+
+# Subjective Structural Barriers to HIV Care and ART (0-10)
+Kalichman, S. C., Catz, S., and Ramachandran, B. (1999). Barriers to HIV/AIDS treatment and adherence among African-American adults with disadvantaged education. _Journal of the National Medical Association_, 91, 439-446.
+
+Individual Items
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("subj_struct_barr")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Item = case_when(Item == 'subj_struct_barr_q1' ~ 'Unable to pay for medical care',
+                          Item == 'subj_struct_barr_q2' ~ 'Not sure where to go to get medical care',
+                          Item == 'subj_struct_barr_q3' ~ 'Did not have transportation to medical care',
+                          Item == 'subj_struct_barr_q4' ~ 'Clinic hours were inconvenient for me',
+                          Item == 'subj_struct_barr_q5' ~ 'I was treated poorly at a clinic in the past',
+                          Item == 'subj_struct_barr_q6' ~ 'I did not want to be seen at a clinic',
+                          Item == 'subj_struct_barr_q7' ~ 'I do not trust doctors',
+                          Item == 'subj_struct_barr_q8' ~ "I don't really care about taking care of myself at this time",
+                          Item == 'subj_struct_barr_q9' ~ 'I did not have child care',
+                          Item == 'subj_struct_barr_q10' ~ 'I was too drunk or high'),
+         Response = ordered(Response, levels = c("Yes","No","Refuse to Answer")),
+         Item = ordered(Item, levels =c('Unable to pay for medical care','Not sure where to go to get medical care',
+                                        'Did not have transportation to medical care','Clinic hours were inconvenient for me',
+                                        'I was treated poorly at a clinic in the past','I did not want to be seen at a clinic',
+                                        'I do not trust doctors',"I don't really care about taking care of myself at this time",
+                                        'I did not have child care','I was too drunk or high'))) %>%
+  filter(!is.na(Response)) %>%
+  with(descr::crosstab(Item, Response, plot = FALSE, prop.r = TRUE))
+```
+
+Total Barriers to Care (0-10)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("subj_struct_barr")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Response = car::recode(Response, "'Yes'=1;NA=NA;else=0")) %>%
+  group_by(unique_id) %>%
+  summarize(`Total Barriers` = sum(Response, na.rm = TRUE)) %>%
+  summarize(n = n(),
+            Mean = round(mean(`Total Barriers`, na.rm = TRUE)),
+            sd = round(sd(`Total Barriers`, na.rm = TRUE)),
+            Median = round(median(`Total Barriers`, na.rm = TRUE)),
+            IQR = round(IQR(`Total Barriers`, na.rm = TRUE)),
+            Min = min(`Total Barriers`, na.rm = TRUE),
+            Max = max(`Total Barriers`, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("subj_struct_barr")) %>%
+  gather(Item, Response, -unique_id) %>%
+  mutate(Response = car::recode(Response, "'Yes'=1;NA=NA;else=0")) %>%
+  select(unique_id, Item, Response) %>%
+  spread(Item, Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Connor-Davidson Resilience Scale (CD-RISC) (0-40)
+* Campbell-Sills, L., & Stein, M. B. (2007). Psychometric analysis and refinement of the connor-davidson resilience scale (CD-RISC): Validation of a 10-item measure of resilience. _Journal of traumatic stress_, 20(6), 1019-1028.
+* Connor, K. M., & Davidson, J. R. (2003). Development of a new resilience scale: The Connor-Davidson resilience scale (CD-RISC). _Depression and anxiety_, 18(2), 76-82.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("resilience")) %>%
+  gather(Item, Response, resilience_q1:resilience_q11) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all true'=0;'Rarely true'=1;'Sometimes true'=2;'Often true'=3;'True nearly all of the time'=4;else=NA")) %>%
+  group_by(unique_id) %>%
+  summarize(Resilience_Total = mean(Numeric_Response, na.rm = TRUE) * 10) %>%
+    na.omit() %>%
+    summarize(n = n(),
+            Mean = round(mean(Resilience_Total, na.rm = TRUE), 2),
+            sd = round(sd(Resilience_Total, na.rm = TRUE), 2),
+            Median = round(median(Resilience_Total, na.rm = TRUE), 2),
+            IQR = round(IQR(Resilience_Total, na.rm = TRUE), 2),
+            Min = min(Resilience_Total, na.rm = TRUE),
+            Max = max(Resilience_Total, na.rm = TRUE)) %>%
+  knitr::kable()
+```
+
+Coefficient Alpha
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, starts_with("resilience")) %>%
+  gather(Item, Response, resilience_q1:resilience_q11) %>%
+  mutate(Numeric_Response = car::recode(Response, "'Not at all true'=0;'Rarely true'=1;'Sometimes true'=2;'Often true'=3;'True nearly all of the time'=4;else=NA")) %>%
+  select(unique_id, Item, Numeric_Response) %>%
+  spread(Item, Numeric_Response) %>%
+  select(-unique_id) %>%
+  psych::alpha()
+```
+
+# Long-Acting ART Interest
+## How likely would you be to try this new method if you were required to come to the clinic.
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, interest_q2a:interest_q2d) %>%
+  gather(Item, Response, interest_q2a:interest_q2d) %>%
+  mutate(Item = case_when(Item == "interest_q2a" ~ "1. once every week",
+                          Item == "interest_q2b" ~ "2. once every two weeks?",
+                          Item == "interest_q2c" ~ "3. once every month?",
+                          Item == "interest_q2d" ~ "4. once every two months?")) %>%
+  with(descr::crosstab(Response, Item, prop.c = TRUE, plot = FALSE))
+```
+
+## How likely would you be to try this new method if you were required to inject yourself
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, interest_q3a:interest_q3d) %>%
+  gather(Item, Response, interest_q3a:interest_q3d) %>%
+  mutate(Item = case_when(Item == "interest_q3a" ~ "1. once every week",
+                          Item == "interest_q3b" ~ "2. once every two weeks?",
+                          Item == "interest_q3c" ~ "3. once every month?",
+                          Item == "interest_q3d" ~ "4. once every two months?")) %>%
+  with(descr::crosstab(Response, Item, prop.c = TRUE, plot = FALSE))
+```
+
+## How concerned are you about each of the following things that may be related to this new way of taking your medication?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2") %>%
+  select(unique_id, interest_q4a:interest_q4j) %>%
+  gather(Item, Response, interest_q4a:interest_q4j) %>%
+  mutate(Item = case_when(Item == "interest_q4a" ~ "a. Side Effects",
+                          Item == "interest_q4b" ~ "b. Getting injections at the clinic",
+                          Item == "interest_q4c" ~ "c. Using needles on yourself",
+                          Item == "interest_q4d" ~ "d. Changing your daily routine",
+                          Item == "interest_q4e" ~ "e. Fear of a new way of taking medication",
+                          Item == "interest_q4f" ~ "f. Fear of what might be in the new medication",
+                          Item == "interest_q4g" ~ "g. Distrust of the new way of taking the medication",
+                          Item == "interest_q4h" ~ "h. Not being able to stop and start medications as easily",
+                          Item == "interest_q4i" ~ "i. Loss of control",
+                          Item == "interest_q4j" ~ "j. Having to go to the clinic more often")) %>%
+  with(descr::crosstab(Item, Response, prop.r = TRUE, plot = FALSE))
+```
+
+## Do you have any other thoughts or concerns about this new way of taking your medications that you would like to share with us?
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(interest_q5)) %>%
+  count(interest_q5) %>%
+  mutate(Percent = round(prop.table(n) * 100, 1)) %>%
+  knitr::kable()
+```
+
+```{r}
+hth %>% 
+  filter(!is.na(interest_q5_notes)) %>%
+  select(interest_q5_notes) %>%
+  knitr::kable()
+```
+
+# Viral Load (log10 transformed) at Screening (Enrolled Participants Only)
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "screen_2b_arm_1") %>%
+  mutate(log10VL = log10(scr2b_sblood_status_value)) %>%
+  summarize(n = n(),
+            Mean = round(mean(log10VL, na.rm = TRUE), 2),
+            sd = round(sd(log10VL, na.rm = TRUE), 2),
+            Median = round(median(log10VL, na.rm = TRUE), 2),
+            IQR = round(IQR(log10VL, na.rm = TRUE), 2),
+            Min = round(min(log10VL, na.rm = TRUE), 2),
+            Max = round(max(log10VL, na.rm = TRUE), 2)) %>%
+  knitr::kable()
+
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "screen_2b_arm_1") %>%
+  mutate(log10VL = log10(scr2b_sblood_status_value)) %>%
+  ggplot(aes(x = log10VL)) +
+  geom_density(fill="#4169E1", alpha = .33) +
+  scale_x_continuous(limits = c(0,8), breaks = 0:8) +
+  theme_minimal() +
+  theme(text = element_text(size=14))
+```
+
+# CD4
+```{r}
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(blood_draw_q11)) %>%
+  rename(CD4 = blood_draw_q11) %>%
+  summarize(n = n(),
+            Mean = round(mean(CD4, na.rm = TRUE)),
+            sd = round(sd(CD4, na.rm = TRUE)),
+            Median = round(median(CD4, na.rm = TRUE)),
+            IQR = round(IQR(CD4, na.rm = TRUE)),
+            Min = min(CD4, na.rm = TRUE),
+            Max = max(CD4, na.rm = TRUE)) %>%
+  knitr::kable()
+
+hth %>% 
+  filter(unique_id %in% Enrolled$unique_id & redcap_event_name == "baseline_interview_arm_2" & !is.na(blood_draw_q11)) %>%
+  rename(CD4 = blood_draw_q11) %>%
+  ggplot(aes(x = CD4)) +
+  geom_density(fill="#4169E1", alpha = .33) +
+  scale_x_continuous(limits=c(0,1600), breaks = seq(0,1600,200)) +
+  theme_minimal() +
+  theme(text = element_text(size=14))
+```
+
+```{r, eval = FALSE}
+hth %>% filter(unique_id %in% Enrolled$unique_id & !is.na(scr2b_sblood_status_value)) %>% select(unique_id, scr2b_sblood_status_value) %>%
+  left_join(hth %>% filter(unique_id %in% Enrolled$unique_id & !is.na(blood_draw_q11)) %>% select(unique_id, blood_draw_q11)) %>%
+  mutate(CD4 = as.numeric(blood_draw_q11),
+         log10VL = as.numeric(log10(scr2b_sblood_status_value))) %>%
+  na.omit() %>%
+  ggplot(aes(x = CD4, y = log10VL)) + geom_point() + geom_smooth() + theme_minimal()
+```
+
+```{r, eval=FALSE}
+file.rename(from = "C:/Dbox/2016 MASTER HTH2 MOST FOLDER/R Code/Baseline Scoring/Baseline-Scoring-17June2017.html", 
+            to = "C:/Dbox/2016 MASTER HTH2 MOST FOLDER/R Code/Baseline Scoring/index.html")
+```
