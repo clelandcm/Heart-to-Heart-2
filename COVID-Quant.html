@@ -213,6 +213,23 @@ window.buildTabsets = function(tocID) {
 };
 
 </script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+<style type="text/css">.Rtable1 table, table.Rtable1 {font-family: "Arial", Arial, sans-serif;font-size: 10pt;border-collapse: collapse;padding: 0px;margin: 0px;}.Rtable1 td {white-space:nowrap;}.Rtable1 th, .Rtable1 td {border: 0;text-align: center;padding: 0.5ex 1.5ex;margin: 0px;}.Rtable1 thead>tr:first-child>th {border-top: 2pt solid black;}.Rtable1 thead>tr:last-child>th {border-bottom: 1pt solid black;}.Rtable1 tbody>tr:last-child>td {border-bottom: 2pt solid black;}.Rtable1 th.grouplabel {padding-left: 0;padding-right: 0;}.Rtable1 th.grouplabel>div {margin-left: 1.5ex;margin-right: 1.5ex;border-bottom: 1pt solid black;}.Rtable1 th.grouplabel:last-child>div {margin-right: 0;}.Rtable1 .rowlabel {text-align: left;padding-left: 2.5ex;}.Rtable1 .firstrow.rowlabel {padding-left: 0.5ex;font-weight: bold;}.Rtable1-zebra tbody tr:nth-child(odd) {background-color: #eee;}table.Rtable1-times {font-family: "Times New Roman", Times, serif;}.Rtable1-shade th {background-color: #ccc;}.Rtable1-grid th, .Rtable1-grid td {border-left: 1pt solid black;border-right: 1pt solid black;}.Rtable1-grid thead>tr:first-child>th {border-top: 1pt solid black;}.Rtable1-grid thead>tr:last-child>th {border-bottom: 1pt solid black;}.Rtable1-grid tbody>tr:last-child>td {border-bottom: 1pt solid black;}.Rtable1-grid .firstrow, .Rtable1-grid .firstrow ~ td {border-top: 1pt solid black;}.Rtable1-grid th.grouplabel>div {margin-left: 0;margin-right: 0;border-bottom: 0;}.Rtable1-center td.rowlabel, .Rtable1-center td.firstrow.rowlabel {font-weight: bold;text-align: center;padding: 0.5ex 1.5ex;}.Rtable1-footnote {font-size: smaller;padding: 0px;margin: 0px;}</style>
 
 
 
@@ -354,824 +371,1343 @@ summary {
 
 <h1 class="title toc-ignore">COVID Survey Items</h1>
 <h4 class="author">Chuck Cleland</h4>
-<h4 class="date">July 03, 2020 09:46:27 AM EDT</h4>
+<h4 class="date">July 03, 2020 02:38:04 PM EDT</h4>
 
 </div>
 
 <div id="TOC">
 <ul>
-<li><a href="#do-you-agree-to-participate">Do you agree to participate?</a></li>
-<li><a href="#date-of-interview">Date of Interview</a></li>
-<li><a href="#have-you-heard-of-the-new-corona-virus-or-covid-19-a-new-viral-infection-affecting-the-community">Have you heard of the new corona virus, or COVID-19, a new viral infection affecting the community?</a></li>
-<li><a href="#how-much-have-you-heard-about-the-corona-virus">How much have you heard about the corona virus?</a></li>
-<li><a href="#have-you-thought-you-needed-a-test-for-corona-virus">Have you thought you needed a test for corona virus?</a></li>
-<li><a href="#have-you-tried-to-get-tested-for-corona-virus-at-least-once">Have you tried to get tested for corona virus at least once?</a></li>
-<li><a href="#i-had-symptoms-of-corona-virus">I had symptoms of corona virus</a></li>
-<li><a href="#i-was-hospitalized">I was hospitalized</a></li>
-<li><a href="#a-healthcare-provider-suggested-i-get-tested">A healthcare provider suggested I get tested</a></li>
-<li><a href="#i-came-into-contact-with-someone-who-had-corona-virus-or-symptoms">I came into contact with someone who had corona virus or symptoms</a></li>
-<li><a href="#have-you-actually-received-a-test-for-corona-virus">Have you actually received a test for corona virus?</a></li>
-<li><a href="#have-you-received-a-test-for-the-corona-virus">Have you received a test for the corona virus?</a></li>
-<li><a href="#how-easy-was-it-to-get-tested">How easy was it to get tested?</a></li>
-<li><a href="#how-long-did-you-wait-to-get-your-test-results">How long did you wait to get your test results?</a></li>
-<li><a href="#did-you-have-to-pay-anything-for-the-test">Did you have to pay anything for the test?</a></li>
-<li><a href="#were-you-tested-in-the-same-clinic-where-you-receive-hiv-care">Were you tested in the same clinic where you receive HIV care?</a></li>
-<li><a href="#have-you-been-diagnosed-with-or-do-you-think-you-had-the-corona-virus">Have you been diagnosed with or do you think you had the corona virus?</a></li>
-<li><a href="#have-you-been-diagnosed-with-the-corona-virus">Have you been diagnosed with the corona virus?</a></li>
-<li><a href="#do-you-think-you-had-the-corona-virus">Do you think you had the corona virus?</a></li>
-<li><a href="#from-0-to-100-how-concerned-are-you-about-catching-the-new-corona-virus-where-100-is-the-most-concerned-you-can-be">From 0 to 100, how concerned are you about catching the new corona virus, where 100 is the most concerned you can be?</a></li>
-<li><a href="#from-0-to-100-how-concerned-are-you-about-catching-the-new-corona-virus-again-where-100-is-the-most-concerned-you-can-be">From 0 to 100, how concerned are you about catching the new corona virus <em>again</em>, where 100 is the most concerned you can be?</a></li>
-<li><a href="#have-any-of-your-friends-or-family-members-been-diagnosed-with-the-corona-virus">Have any of your friends or family members been diagnosed with the corona virus?</a></li>
-<li><a href="#from-0-to-100-how-concerned-are-you-about-someone-you-know-catching-the-new-corona-virus">From 0 to 100, how concerned are you about someone you know catching the new corona virus?</a></li>
-<li><a href="#the-new-corona-virus-is-affecting-people-in-different-ways.-have-you-had-any-of-the-following-experiences-in-response-to-the-corona-virus">The new corona virus is affecting people in different ways. Have you had any of the following experiences in response to the corona virus?</a><ul>
-<li><a href="#staying-indoors-and-away-from-public-places">Staying indoors and away from public places</a></li>
-<li><a href="#canceled-plans-that-involve-other-people">Canceled plans that involve other people</a></li>
-<li><a href="#been-unable-to-get-the-food-you-need">Been unable to get the food you need</a></li>
-<li><a href="#been-unable-to-get-to-a-pharmacy-because-of-the-new-corona-virus">Been unable to get to a pharmacy because of the new corona virus</a></li>
-<li><a href="#been-unable-to-get-to-medicine-you-need-because-of-the-new-corona-virus">Been unable to get to medicine you need because of the new corona virus</a></li>
-<li><a href="#you-asked-others-to-stay-away-to-avoid-getting-the-new-corona-virus">You asked others to stay away to avoid getting the new corona virus</a></li>
-<li><a href="#you-have-been-asked-by-others-to-stay-away-to-protect-you-from-getting-the-corona-virus">You have been asked by others to stay away to protect you from getting the corona virus</a></li>
-<li><a href="#you-were-told-not-to-come-to-work-or-school-because-of-the-corona-virus">You were told not to come to work or school because of the corona virus</a></li>
-<li><a href="#you-avoided-the-subway-bus-or-other-forms-of-public-transportation-because-of-the-corona-virus">You avoided the subway, bus, or other forms of public transportation because of the corona virus</a></li>
-<li><a href="#you-canceled-a-clinic-or-doctors-appointment-to-avoid-being-around-others">You canceled a clinic or doctor’s appointment to avoid being around others</a></li>
-<li><a href="#a-medical-clinic-or-physical-health-care-professional-closed-or-canceled-your-appointment-because-of-the-new-corona-virus">A medical clinic or physical health care professional closed or canceled your appointment because of the new corona virus</a></li>
-<li><a href="#substance-use-treatment-or-support-such-as-aa-or-na-was-canceled-because-of-the-new-corona-virus">Substance use treatment or support such as AA or NA was canceled because of the new corona virus</a></li>
-<li><a href="#a-social-worker-or-social-service-provider-of-any-type-closed-or-canceled-your-appointment-because-of-the-new-corona-virus">A social worker or social service provider of any type closed or canceled your appointment because of the new corona virus</a></li>
-</ul></li>
-<li><a href="#the-local-and-federal-governments-have-taken-some-actions-to-prevent-the-spread-of-the-new-corona-virus.-we-are-interested-in-your-opinion.">The local and federal governments have taken some actions to prevent the spread of the new corona virus. We are interested in your opinion.</a><ul>
-<li><a href="#how-much-do-you-trust-that-the-local-new-york-state-government-is-doing-all-it-can-to-prevent-the-spread-of-the-corona-virus">How much do you trust that the local <strong>New York State</strong> government is doing all it can to prevent the spread of the corona virus?</a></li>
-<li><a href="#how-much-do-you-trust-that-the-local-new-york-city-government-is-doing-all-it-can-to-prevent-the-spread-of-the-corona-virus">How much do you trust that the local <strong>New York City</strong> government is doing all it can to prevent the spread of the corona virus?</a></li>
-<li><a href="#how-much-do-you-trust-that-the-federal-government-including-the-president-and-congress-are-doing-all-it-can-to-prevent-the-spread-of-the-corona-virus">How much do you trust that the <strong>federal government, including the President and Congress</strong>, are doing all it can to prevent the spread of the corona virus?</a></li>
-<li><a href="#how-much-do-you-trust-information-from-the-centers-for-disease-control-that-is-the-cdc-about-the-new-corona-virus">How much do you trust information from the Centers for Disease Control, that is, the CDC, about the new corona virus?</a></li>
-<li><a href="#how-much-do-you-trust-information-from-the-new-york-city-department-of-health-and-mental-hygiene-about-the-new-corona-virus">How much do you trust information from the New York City Department of Health and Mental Hygiene about the new corona virus?</a></li>
-<li><a href="#how-much-do-you-trust-information-you-are-seeing-online-or-in-social-media-about-the-new-corona-virus">How much do you trust information you are seeing online or in social media about the new corona virus?</a></li>
-</ul></li>
-<li><a href="#which-of-the-following-are-you-experiencing-or-did-you-experience-because-of-the-new-corona-virus">Which of the following are you experiencing (or did you experience) because of the new corona virus?</a><ul>
-<li><a href="#worrying-about-friends-family-partners-etc.">Worrying about friends, family, partners, etc.</a></li>
-<li><a href="#were-you-worried-about-people-locally">were you worried about people locally</a></li>
-<li><a href="#were-you-worried-about-people-in-other-parts-of-the-us">were you worried about people in other parts of the US</a></li>
-<li><a href="#were-you-worried-about-people-outside-the-us">were you worried about people outside the US</a></li>
-<li><a href="#stigma-or-discrimination-from-other-people-e.g.-people-treating-you-differently-because-of-your-identity-having-symptoms-or-other-factors-related-to-corona-virus">Stigma or discrimination from other people (e.g., people treating you differently because of your identity, having symptoms, or other factors related to corona virus)</a></li>
-<li><a href="#personal-financial-loss-e.g.-lost-wages-job-loss-investmentretirement-loss-travel-related-cancellations">Personal financial loss (e.g., lost wages, job loss, investment/retirement loss, travel-related cancellations)</a></li>
-<li><a href="#frustration-or-boredom">Frustration or boredom</a></li>
-<li><a href="#not-having-enough-basic-supplies-e.g.-food-water-medications-a-place-to-stay">Not having enough basic supplies (e.g., food, water, medications, a place to stay)</a></li>
-<li><a href="#more-anxiety">More anxiety</a></li>
-<li><a href="#more-depression">More depression</a></li>
-<li><a href="#more-sleep-less-sleep-or-other-changes-to-your-normal-sleep-pattern">More sleep, less sleep, or other changes to your normal sleep pattern</a></li>
-<li><a href="#increased-alcohol-or-other-substance-use">Increased alcohol or other substance use</a></li>
-<li><a href="#decreased-alcohol-or-other-substance-use">Decreased alcohol or other substance use</a></li>
-<li><a href="#decreased-ability-to-get-alcohol-or-other-substances">Decreased ability to get alcohol or other substances</a></li>
-<li><a href="#an-increase-in-sexual-activity">An increase in sexual activity</a></li>
-<li><a href="#a-decrease-in-sexual-activity">A decrease in sexual activity</a></li>
-<li><a href="#loneliness">Loneliness</a></li>
-</ul></li>
-<li><a href="#we-are-going-to-ask-some-questions-about-how-the-corona-virus-may-have-affected-how-you-manage-your-hiv-infection.">We are going to ask some questions about how the corona virus may have affected how you manage your HIV infection.</a><ul>
-<li><a href="#confusion-about-what-corona-virus-is-how-to-prevent-it-or-why-social-distancing-isolation-and-quarantines-are-needed">Confusion about what corona virus is, how to prevent it, or why social distancing, isolation, and quarantines are needed</a></li>
-<li><a href="#feeling-that-you-were-contributing-to-the-greater-good-by-preventing-yourself-or-others-from-getting-corona-virus">Feeling that you were contributing to the greater good by preventing yourself or others from getting corona virus</a></li>
-<li><a href="#getting-emotional-or-social-support-from-family-friends-partners-a-counselor-or-someone-else">Getting <em>emotional or social</em> support from family, friends, partners, a counselor, or someone else</a></li>
-<li><a href="#getting-financial-support-from-family-friends-partners-an-organization-or-someone-else">Getting <em>financial</em> support from family, friends, partners, an organization, or someone else</a></li>
-<li><a href="#other-difficulties-or-challenges">Other difficulties or challenges</a></li>
-</ul></li>
-<li><a href="#have-you-ever-had-a-flu-vaccine">Have you ever had a flu vaccine?</a></li>
-<li><a href="#when-was-the-last-time-you-had-a-flu-vaccine">When was the last time you had a flu vaccine?</a></li>
-<li><a href="#if-there-was-a-vaccine-for-the-corona-virus-would-you-get-it">If there was a vaccine for the corona virus, would you get it?</a></li>
-<li><a href="#were-you-taking-hiv-medications-over-the-past-three-months">Were you taking HIV medications over the past three months?</a></li>
-<li><a href="#did-you-decide-to-stop-taking-hiv-medications-because-of-the-corona-virus">Did you decide to <strong>stop taking</strong> HIV medications because of the corona virus?</a></li>
-<li><a href="#how-much-did-the-corona-virus-increase-your-willingness-or-desire-to-take-your-hiv-medication-with-a-high-level-of-adherence">How much did the corona virus increase your <strong>willingness or desire</strong> to take your HIV medication with a high level of adherence?</a></li>
-<li><a href="#did-you-actually-increase-how-often-you-took-hiv-medications-because-of-the-corona-virus">Did you actually <strong>increase how often</strong> you took HIV medications because of the corona virus?</a></li>
-<li><a href="#how-much-did-the-corona-virus-get-in-the-way-of-how-often-you-actually-took-hiv-medications">How much did the corona virus <strong>get in the way</strong> of how often you actually took HIV medications?</a></li>
-<li><a href="#how-much-has-the-corona-virus-increased-your-willingness-or-desire-to-start-taking-hiv-medications">How much has the corona virus increased your <strong>willingness or desire</strong> to start taking HIV medications?</a></li>
-<li><a href="#do-you-think-you-will-start-taking-hiv-medications-because-of-the-corona-virus">Do you think you will start taking HIV medications because of the corona virus?</a></li>
+<li><a href="#the-new-corona-virus-is-affecting-people-in-different-ways.-have-you-had-any-of-the-following-experiences-in-response-to-the-corona-virus">The new corona virus is affecting people in different ways. Have you had any of the following experiences in response to the corona virus?</a></li>
+<li><a href="#the-local-and-federal-governments-have-taken-some-actions-to-prevent-the-spread-of-the-new-corona-virus.-we-are-interested-in-your-opinion.">The local and federal governments have taken some actions to prevent the spread of the new corona virus. We are interested in your opinion.</a></li>
+<li><a href="#which-of-the-following-are-you-experiencing-or-did-you-experience-because-of-the-new-corona-virus">Which of the following are you experiencing (or did you experience) because of the new corona virus?</a></li>
+<li><a href="#which-of-the-following-are-you-experiencing-or-did-you-experience-because-of-the-new-corona-virus-1">Which of the following are you experiencing (or did you experience) because of the new corona virus?</a></li>
+<li><a href="#we-are-going-to-ask-some-questions-about-how-the-corona-virus-may-have-affected-how-you-manage-your-hiv-infection.-again-there-are-no-right-or-wrong-answers.-we-just-want-to-understand-how-this-is-affecting-you.">We are going to ask some questions about how the corona virus may have affected how you manage your HIV infection. Again, there are no right or wrong answers. We just want to understand how this is affecting you.</a></li>
 </ul>
 </div>
 
-<div id="do-you-agree-to-participate" class="section level1">
-<h1>Do you agree to participate?</h1>
-<pre><code>covid_consent_documented 
-      Frequency Percent
-No            3   4.688
-Yes          61  95.312
-Total        64 100.000</code></pre>
-</div>
-<div id="date-of-interview" class="section level1">
-<h1>Date of Interview</h1>
-<pre><code>                 Min.               1st Qu.                Median                  Mean               3rd Qu.                  Max. 
-&quot;2020-04-16 00:00:00&quot; &quot;2020-04-28 00:00:00&quot; &quot;2020-05-11 00:00:00&quot; &quot;2020-05-14 08:37:30&quot; &quot;2020-05-28 00:00:00&quot; &quot;2020-07-02 00:00:00&quot; </code></pre>
-</div>
-<div id="have-you-heard-of-the-new-corona-virus-or-covid-19-a-new-viral-infection-affecting-the-community" class="section level1">
-<h1>Have you heard of the new corona virus, or COVID-19, a new viral infection affecting the community?</h1>
-<pre><code>covid_q1 
-      Frequency Percent
-Yes          64     100
-Total        64     100</code></pre>
-</div>
-<div id="how-much-have-you-heard-about-the-corona-virus" class="section level1">
-<h1>How much have you heard about the corona virus?</h1>
-<pre><code>covid_q2 
-             Frequency Percent
-Some                 7  10.938
-A great deal        56  87.500
-Don&#39;t Know           1   1.562
-Total               64 100.000</code></pre>
-</div>
-<div id="have-you-thought-you-needed-a-test-for-corona-virus" class="section level1">
-<h1>Have you thought you needed a test for corona virus?</h1>
-<pre><code>covid_q3a 
-           Frequency Percent Valid Percent
-No                37  57.812        61.667
-Yes               22  34.375        36.667
-Don&#39;t Know         1   1.562         1.667
-NA&#39;s               4   6.250              
-Total             64 100.000       100.000</code></pre>
-</div>
-<div id="have-you-tried-to-get-tested-for-corona-virus-at-least-once" class="section level1">
-<h1>Have you tried to get tested for corona virus at least once?</h1>
-<pre><code>covid_q3b 
-      Frequency Percent Valid Percent
-No           43   67.19         71.67
-Yes          17   26.56         28.33
-NA&#39;s          4    6.25              
-Total        64  100.00        100.00</code></pre>
-</div>
-<div id="i-had-symptoms-of-corona-virus" class="section level1">
-<h1>I had symptoms of corona virus</h1>
-<pre><code>covid_q3c1 
-      Frequency Percent Valid Percent
-No           12  18.750         70.59
-Yes           5   7.812         29.41
-NA&#39;s         47  73.438              
-Total        64 100.000        100.00</code></pre>
-</div>
-<div id="i-was-hospitalized" class="section level1">
-<h1>I was hospitalized</h1>
-<pre><code>covid_q3c2 
-      Frequency Percent Valid Percent
-No            9   14.06         52.94
-Yes           8   12.50         47.06
-NA&#39;s         47   73.44              
-Total        64  100.00        100.00</code></pre>
-</div>
-<div id="a-healthcare-provider-suggested-i-get-tested" class="section level1">
-<h1>A healthcare provider suggested I get tested</h1>
-<pre><code>covid_q3c3 
-      Frequency Percent Valid Percent
-No            7   10.94         41.18
-Yes          10   15.62         58.82
-NA&#39;s         47   73.44              
-Total        64  100.00        100.00</code></pre>
-</div>
-<div id="i-came-into-contact-with-someone-who-had-corona-virus-or-symptoms" class="section level1">
-<h1>I came into contact with someone who had corona virus or symptoms</h1>
-<pre><code>covid_q3c4 
-           Frequency Percent Valid Percent
-No                13  20.312        76.471
-Yes                3   4.688        17.647
-Don&#39;t Know         1   1.562         5.882
-NA&#39;s              47  73.438              
-Total             64 100.000       100.000</code></pre>
-</div>
-<div id="have-you-actually-received-a-test-for-corona-virus" class="section level1">
-<h1>Have you actually received a test for corona virus?</h1>
-<pre><code>covid_q3c5 
-           Frequency Percent Valid Percent
-No                 8  12.500        47.059
-Yes                8  12.500        47.059
-Don&#39;t Know         1   1.562         5.882
-NA&#39;s              47  73.438              
-Total             64 100.000       100.000</code></pre>
-</div>
-<div id="have-you-received-a-test-for-the-corona-virus" class="section level1">
-<h1>Have you received a test for the corona virus?</h1>
-<pre><code>covid_q3 
-      Frequency Percent Valid Percent
-No            3   4.688            75
-Yes           1   1.562            25
-NA&#39;s         60  93.750              
-Total        64 100.000           100</code></pre>
-</div>
-<div id="how-easy-was-it-to-get-tested" class="section level1">
-<h1>How easy was it to get tested?</h1>
-<pre><code>covid_q3e 
-              Frequency Percent Valid Percent
-Somewhat easy         5   7.812         38.46
-Very easy             8  12.500         61.54
-NA&#39;s                 51  79.688              
-Total                64 100.000        100.00</code></pre>
-</div>
-<div id="how-long-did-you-wait-to-get-your-test-results" class="section level1">
-<h1>How long did you wait to get your test results?</h1>
-<pre><code>How long did you wait to get your test results? 
-(Enter the number of days.)
-(Enter &#39;0&#39; if they received results the same day of testing.)
-(Enter &#39;-9&#39; if they never received results.)
-(Enter &#39;-999&#39; if they don&#39;t know) 
-        Frequency Percent Valid Percent
--9              1   1.562         7.692
-0               2   3.125        15.385
-1               2   3.125        15.385
-3               2   3.125        15.385
-3 days          1   1.562         7.692
-4               1   1.562         7.692
-5               1   1.562         7.692
-6 hours         1   1.562         7.692
-7               1   1.562         7.692
-7 days          1   1.562         7.692
-NA&#39;s           51  79.688              
-Total          64 100.000       100.000</code></pre>
-</div>
-<div id="did-you-have-to-pay-anything-for-the-test" class="section level1">
-<h1>Did you have to pay anything for the test?</h1>
-<pre><code>covid_q3g 
-      Frequency Percent Valid Percent
-No           13   20.31           100
-NA&#39;s         51   79.69              
-Total        64  100.00           100</code></pre>
-</div>
-<div id="were-you-tested-in-the-same-clinic-where-you-receive-hiv-care" class="section level1">
-<h1>Were you tested in the same clinic where you receive HIV care?</h1>
-<pre><code>covid_q3h 
-      Frequency Percent Valid Percent
-No           12  18.750        92.308
-Yes           1   1.562         7.692
-NA&#39;s         51  79.688              
-Total        64 100.000       100.000</code></pre>
-</div>
-<div id="have-you-been-diagnosed-with-or-do-you-think-you-had-the-corona-virus" class="section level1">
-<h1>Have you been diagnosed with or do you think you had the corona virus?</h1>
-<pre><code>covid_q4 
-      Frequency Percent Valid Percent
-No            4    6.25           100
-NA&#39;s         60   93.75              
-Total        64  100.00           100</code></pre>
-</div>
-<div id="have-you-been-diagnosed-with-the-corona-virus" class="section level1">
-<h1>Have you been diagnosed with the corona virus?</h1>
-<pre><code>covid_q4a 
-      Frequency Percent Valid Percent
-No           60   93.75           100
-NA&#39;s          4    6.25              
-Total        64  100.00           100</code></pre>
-</div>
-<div id="do-you-think-you-had-the-corona-virus" class="section level1">
-<h1>Do you think you had the corona virus?</h1>
-<pre><code>covid_q4b 
-           Frequency Percent Valid Percent
-No                52  81.250        86.667
-Yes                3   4.688         5.000
-Don&#39;t Know         5   7.812         8.333
-NA&#39;s               4   6.250              
-Total             64 100.000       100.000</code></pre>
-</div>
-<div id="from-0-to-100-how-concerned-are-you-about-catching-the-new-corona-virus-where-100-is-the-most-concerned-you-can-be" class="section level1">
-<h1>From 0 to 100, how concerned are you about catching the new corona virus, where 100 is the most concerned you can be?</h1>
-<pre><code>From 0 to 100, how concerned are you about catching the new corona virus, where 100 is the most concerned you can be? 
-      Frequency Percent
-0             4   6.250
-3             1   1.562
-8             1   1.562
-9             1   1.562
-15            1   1.562
-20            3   4.688
-30            1   1.562
-40            2   3.125
-50            3   4.688
-60            3   4.688
-65            2   3.125
-70            1   1.562
-75            1   1.562
-80            2   3.125
-89            1   1.562
-90            1   1.562
-95            1   1.562
-100          35  54.688
-Total        64 100.000</code></pre>
-</div>
-<div id="from-0-to-100-how-concerned-are-you-about-catching-the-new-corona-virus-again-where-100-is-the-most-concerned-you-can-be" class="section level1">
-<h1>From 0 to 100, how concerned are you about catching the new corona virus <em>again</em>, where 100 is the most concerned you can be?</h1>
-<pre><code>From 0 to 100, how concerned are you about catching the new corona virus *again*, where 100 is the most concerned you can be? 
-      Frequency Percent Valid Percent
-0             1   1.562         33.33
-89            1   1.562         33.33
-100           1   1.562         33.33
-NA&#39;s         61  95.312              
-Total        64 100.000        100.00</code></pre>
-</div>
-<div id="have-any-of-your-friends-or-family-members-been-diagnosed-with-the-corona-virus" class="section level1">
-<h1>Have any of your friends or family members been diagnosed with the corona virus?</h1>
-<pre><code>covid_q5c 
-           Frequency Percent Valid Percent
-No                34  53.125        56.667
-Yes               25  39.062        41.667
-Don&#39;t Know         1   1.562         1.667
-NA&#39;s               4   6.250              
-Total             64 100.000       100.000</code></pre>
-</div>
-<div id="from-0-to-100-how-concerned-are-you-about-someone-you-know-catching-the-new-corona-virus" class="section level1">
-<h1>From 0 to 100, how concerned are you about someone you know catching the new corona virus?</h1>
-<pre><code>From 0 to 100, how concerned are you about someone you know catching the new corona virus? 
-      Frequency Percent
-0             3   4.688
-2             1   1.562
-10            1   1.562
-11            1   1.562
-50            9  14.062
-70            1   1.562
-75            3   4.688
-80            3   4.688
-90            1   1.562
-100          41  64.062
-Total        64 100.000</code></pre>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=64)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Do you agree to participate?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>3 (4.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>61 (95.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have you heard of the new corona virus, or COVID-19, a new viral infection affecting the community?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>64 (100%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much have you heard about the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Some</td>
+<td>7 (10.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>A great deal</td>
+<td>56 (87.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have you thought you needed a test for corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>37 (61.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>22 (36.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>1 (1.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have you tried to get tested for corona virus at least once?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>43 (71.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>17 (28.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>I had symptoms of corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>12 (70.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>5 (29.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>47 (73.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>I was hospitalized.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>9 (52.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>8 (47.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>47 (73.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>A healthcare provider suggested I get tested.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>7 (41.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>10 (58.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>47 (73.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>I came into contact with someone who had corona virus or symptoms.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>13 (76.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>3 (17.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>1 (5.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>47 (73.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Some other reason: SPECIFY</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>8 (47.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>8 (47.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>1 (5.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>47 (73.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have you received a test for the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>3 (75.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>1 (25.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>60 (93.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How easy was it to get tested? (READ EACH RESPONSE)</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat easy</td>
+<td>5 (38.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Very easy</td>
+<td>8 (61.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>51 (79.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How long did you wait to get your test results?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>-9</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>0</td>
+<td>2 (15.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>1</td>
+<td>2 (15.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>3</td>
+<td>2 (15.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>3 days</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>4</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>5</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>6 hours</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>7</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>7 days</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>51 (79.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Did you have to pay anything for the test?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>13 (100%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>51 (79.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Were you tested in the same clinic where you receive HIV care?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>12 (92.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>1 (7.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>51 (79.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have you been diagnosed with or do you think you had the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>4 (100%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>60 (93.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have you been diagnosed with the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>60 (100%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Do you think you had the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>52 (86.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>3 (5.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>5 (8.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>From 0 to 100, how concerned are you about catching the new corona virus, where 100 is the most concerned you can be?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>74.1 (35.4)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Median [Q1, Q3]</td>
+<td>100 [50.0, 100]</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Range [Min, Max]</td>
+<td class='lastrow'>[0, 100]</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>From 0 to 100, how concerned are you about catching the new corona virus *again*, where 100 is the most concerned you can be?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>63.0 (54.8)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Median [Q1, Q3]</td>
+<td>89.0 [44.5, 94.5]</td>
+</tr>
+<tr>
+<td class='rowlabel'>Range [Min, Max]</td>
+<td>[0, 100]</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>61 (95.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have any of your friends or family members been diagnosed with the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>34 (56.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>25 (41.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>1 (1.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>From 0 to 100, how concerned are you about someone you know catching the new corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>81.2 (30.8)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Median [Q1, Q3]</td>
+<td>100 [73.8, 100]</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Range [Min, Max]</td>
+<td class='lastrow'>[0, 100]</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="the-new-corona-virus-is-affecting-people-in-different-ways.-have-you-had-any-of-the-following-experiences-in-response-to-the-corona-virus" class="section level1">
 <h1>The new corona virus is affecting people in different ways. Have you had any of the following experiences in response to the corona virus?</h1>
-<div id="staying-indoors-and-away-from-public-places" class="section level2">
-<h2>Staying indoors and away from public places</h2>
-<pre><code>covid_q7 
-              Frequency Percent
-No                    4    6.25
-Yes, a little        10   15.62
-Yes a lot            50   78.12
-Total                64  100.00</code></pre>
-</div>
-<div id="canceled-plans-that-involve-other-people" class="section level2">
-<h2>Canceled plans that involve other people</h2>
-<pre><code>covid_q8 
-              Frequency Percent
-No                    8   12.50
-Yes, a little        11   17.19
-Yes a lot            45   70.31
-Total                64  100.00</code></pre>
-</div>
-<div id="been-unable-to-get-the-food-you-need" class="section level2">
-<h2>Been unable to get the food you need</h2>
-<pre><code>covid_q9 
-              Frequency Percent
-No                   35   54.69
-Yes, a little        22   34.38
-Yes a lot             7   10.94
-Total                64  100.00</code></pre>
-</div>
-<div id="been-unable-to-get-to-a-pharmacy-because-of-the-new-corona-virus" class="section level2">
-<h2>Been unable to get to a pharmacy because of the new corona virus</h2>
-<pre><code>covid_q10 
-              Frequency Percent
-No                   52   81.25
-Yes, a little         4    6.25
-Yes a lot             8   12.50
-Total                64  100.00</code></pre>
-</div>
-<div id="been-unable-to-get-to-medicine-you-need-because-of-the-new-corona-virus" class="section level2">
-<h2>Been unable to get to medicine you need because of the new corona virus</h2>
-<pre><code>covid_q11 
-              Frequency Percent
-No                   53  82.812
-Yes, a little         5   7.812
-Yes a lot             6   9.375
-Total                64 100.000</code></pre>
-</div>
-<div id="you-asked-others-to-stay-away-to-avoid-getting-the-new-corona-virus" class="section level2">
-<h2>You asked others to stay away to avoid getting the new corona virus</h2>
-<pre><code>covid_q12 
-              Frequency Percent
-No                   14   21.88
-Yes, a little        14   21.88
-Yes a lot            36   56.25
-Total                64  100.00</code></pre>
-</div>
-<div id="you-have-been-asked-by-others-to-stay-away-to-protect-you-from-getting-the-corona-virus" class="section level2">
-<h2>You have been asked by others to stay away to protect you from getting the corona virus</h2>
-<pre><code>covid_q13 
-              Frequency Percent
-No                   14   21.88
-Yes, a little        15   23.44
-Yes a lot            35   54.69
-Total                64  100.00</code></pre>
-</div>
-<div id="you-were-told-not-to-come-to-work-or-school-because-of-the-corona-virus" class="section level2">
-<h2>You were told not to come to work or school because of the corona virus</h2>
-<pre><code>covid_q14 
-              Frequency Percent
-No                   31  48.438
-Yes, a little         2   3.125
-Yes a lot            30  46.875
-Don&#39;t Know            1   1.562
-Total                64 100.000</code></pre>
-</div>
-<div id="you-avoided-the-subway-bus-or-other-forms-of-public-transportation-because-of-the-corona-virus" class="section level2">
-<h2>You avoided the subway, bus, or other forms of public transportation because of the corona virus</h2>
-<pre><code>covid_q15 
-              Frequency Percent
-No                   15   23.44
-Yes, a little        17   26.56
-Yes a lot            32   50.00
-Total                64  100.00</code></pre>
-</div>
-<div id="you-canceled-a-clinic-or-doctors-appointment-to-avoid-being-around-others" class="section level2">
-<h2>You canceled a clinic or doctor’s appointment to avoid being around others</h2>
-<pre><code>covid_q16 
-      Frequency Percent
-No           38   59.38
-Yes          26   40.62
-Total        64  100.00</code></pre>
-</div>
-<div id="a-medical-clinic-or-physical-health-care-professional-closed-or-canceled-your-appointment-because-of-the-new-corona-virus" class="section level2">
-<h2>A medical clinic or physical health care professional closed or canceled your appointment because of the new corona virus</h2>
-<pre><code>covid_q17 
-      Frequency Percent
-No           19   29.69
-Yes          45   70.31
-Total        64  100.00</code></pre>
-</div>
-<div id="substance-use-treatment-or-support-such-as-aa-or-na-was-canceled-because-of-the-new-corona-virus" class="section level2">
-<h2>Substance use treatment or support such as AA or NA was canceled because of the new corona virus</h2>
-<pre><code>covid_q18 
-           Frequency Percent
-No                34   53.12
-Yes               20   31.25
-Don&#39;t Know        10   15.62
-Total             64  100.00</code></pre>
-</div>
-<div id="a-social-worker-or-social-service-provider-of-any-type-closed-or-canceled-your-appointment-because-of-the-new-corona-virus" class="section level2">
-<h2>A social worker or social service provider of any type closed or canceled your appointment because of the new corona virus</h2>
-<pre><code>covid_q19 
-           Frequency Percent
-No                24  37.500
-Yes               38  59.375
-Don&#39;t Know         2   3.125
-Total             64 100.000</code></pre>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=64)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Staying indoors and away from public places.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>10 (15.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>50 (78.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Cancelled plans that involve other people.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>8 (12.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>11 (17.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>45 (70.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Been unable to get the food you need.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>35 (54.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>22 (34.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>7 (10.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Been unable to get to a pharmacy because of the new corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>52 (81.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>8 (12.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Been unable to get to medicine you need because of the new corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>53 (82.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>5 (7.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>You asked others to stay away to avoid getting the new corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>14 (21.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>14 (21.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>36 (56.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>You have been asked by others to stay away to protect you from getting the corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>14 (21.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>15 (23.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>35 (54.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>You were told not to come to work or school because of the corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>31 (48.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>2 (3.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes a lot</td>
+<td>30 (46.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>You avoided the subway, bus, or other forms of public transportation because of the corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>15 (23.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes, a little</td>
+<td>17 (26.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes a lot</td>
+<td class='lastrow'>32 (50.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>You cancelled a clinic or doctor's appointment to avoid being around others.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>38 (59.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>26 (40.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>A medical clinic or physical health care professional closed or cancelled your appointment because of the new corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>19 (29.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>45 (70.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Substance use treatment or support such as AA or NA was cancelled because of the new corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>34 (53.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>20 (31.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>10 (15.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>A social worker or social service provider of any type closed or cancelled your appointment because of the new corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>24 (37.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>38 (59.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>2 (3.1%)</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="the-local-and-federal-governments-have-taken-some-actions-to-prevent-the-spread-of-the-new-corona-virus.-we-are-interested-in-your-opinion." class="section level1">
 <h1>The local and federal governments have taken some actions to prevent the spread of the new corona virus. We are interested in your opinion.</h1>
-<div id="how-much-do-you-trust-that-the-local-new-york-state-government-is-doing-all-it-can-to-prevent-the-spread-of-the-corona-virus" class="section level2">
-<h2>How much do you trust that the local <strong>New York State</strong> government is doing all it can to prevent the spread of the corona virus?</h2>
-<pre><code>covid_q20 
-                    Frequency Percent
-Do not Trust at all        10  15.625
-Slightly Trust              8  12.500
-Somewhat Trust             22  34.375
-Trust Completely           22  34.375
-Don&#39;t Know                  2   3.125
-Total                      64 100.000</code></pre>
-</div>
-<div id="how-much-do-you-trust-that-the-local-new-york-city-government-is-doing-all-it-can-to-prevent-the-spread-of-the-corona-virus" class="section level2">
-<h2>How much do you trust that the local <strong>New York City</strong> government is doing all it can to prevent the spread of the corona virus?</h2>
-<pre><code>covid_q21 
-                    Frequency Percent
-Do not Trust at all         6   9.375
-Slightly Trust             12  18.750
-Somewhat Trust             18  28.125
-Trust Completely           26  40.625
-Don&#39;t Know                  2   3.125
-Total                      64 100.000</code></pre>
-</div>
-<div id="how-much-do-you-trust-that-the-federal-government-including-the-president-and-congress-are-doing-all-it-can-to-prevent-the-spread-of-the-corona-virus" class="section level2">
-<h2>How much do you trust that the <strong>federal government, including the President and Congress</strong>, are doing all it can to prevent the spread of the corona virus?</h2>
-<pre><code>covid_q22 
-                    Frequency Percent
-Do not Trust at all        27  42.188
-Slightly Trust             19  29.688
-Somewhat Trust             12  18.750
-Trust Completely            5   7.812
-Don&#39;t Know                  1   1.562
-Total                      64 100.000</code></pre>
-</div>
-<div id="how-much-do-you-trust-information-from-the-centers-for-disease-control-that-is-the-cdc-about-the-new-corona-virus" class="section level2">
-<h2>How much do you trust information from the Centers for Disease Control, that is, the CDC, about the new corona virus?</h2>
-<pre><code>covid_q23 
-                    Frequency Percent
-Do not Trust at all         6   9.375
-Slightly Trust             13  20.312
-Somewhat Trust             25  39.062
-Trust Completely           19  29.688
-Don&#39;t Know                  1   1.562
-Total                      64 100.000</code></pre>
-</div>
-<div id="how-much-do-you-trust-information-from-the-new-york-city-department-of-health-and-mental-hygiene-about-the-new-corona-virus" class="section level2">
-<h2>How much do you trust information from the New York City Department of Health and Mental Hygiene about the new corona virus?</h2>
-<pre><code>covid_q24 
-                    Frequency Percent
-Do not Trust at all         7  10.938
-Slightly Trust             11  17.188
-Somewhat Trust             24  37.500
-Trust Completely           21  32.812
-Don&#39;t Know                  1   1.562
-Total                      64 100.000</code></pre>
-</div>
-<div id="how-much-do-you-trust-information-you-are-seeing-online-or-in-social-media-about-the-new-corona-virus" class="section level2">
-<h2>How much do you trust information you are seeing online or in social media about the new corona virus?</h2>
-<pre><code>covid_q25 
-                    Frequency Percent
-Do not Trust at all        15   23.44
-Slightly Trust             22   34.38
-Somewhat Trust             19   29.69
-Trust Completely            4    6.25
-Don&#39;t Know                  4    6.25
-Total                      64  100.00</code></pre>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=64)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much do you trust that the local <b>New York State</b> government is doing all it can to prevent the spread of the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Do not Trust at all</td>
+<td>10 (15.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Slightly Trust</td>
+<td>8 (12.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat Trust</td>
+<td>22 (34.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Trust Completely</td>
+<td>22 (34.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>2 (3.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much do you trust that the local <b>New York City</b> government is doing all it can to prevent the spread of the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Do not Trust at all</td>
+<td>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Slightly Trust</td>
+<td>12 (18.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat Trust</td>
+<td>18 (28.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Trust Completely</td>
+<td>26 (40.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>2 (3.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much do you trust that the <b>federal government, including the President and Congress</b>, are doing all it can to prevent the spread of the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Do not Trust at all</td>
+<td>27 (42.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Slightly Trust</td>
+<td>19 (29.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat Trust</td>
+<td>12 (18.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Trust Completely</td>
+<td>5 (7.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much do you trust information from the Centers for Disease Control, that is, the CDC, about the new corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Do not Trust at all</td>
+<td>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Slightly Trust</td>
+<td>13 (20.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat Trust</td>
+<td>25 (39.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Trust Completely</td>
+<td>19 (29.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much do you trust information from the New York City Department of Health and Mental Hygiene about the new corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Do not Trust at all</td>
+<td>7 (10.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Slightly Trust</td>
+<td>11 (17.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat Trust</td>
+<td>24 (37.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Trust Completely</td>
+<td>21 (32.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much do you trust information you are seeing online or in social media about the new corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Do not Trust at all</td>
+<td>15 (23.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Slightly Trust</td>
+<td>22 (34.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat Trust</td>
+<td>19 (29.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Trust Completely</td>
+<td>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Worrying about friends, family, partners, etc.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>7 (10.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>57 (89.1%)</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div id="which-of-the-following-are-you-experiencing-or-did-you-experience-because-of-the-new-corona-virus" class="section level1">
 <h1>Which of the following are you experiencing (or did you experience) because of the new corona virus?</h1>
-<div id="worrying-about-friends-family-partners-etc." class="section level2">
-<h2>Worrying about friends, family, partners, etc.</h2>
-<pre><code>covid_q26 
-      Frequency Percent
-No            7   10.94
-Yes          57   89.06
-Total        64  100.00</code></pre>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=64)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Worrying about friends, family, partners, etc.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>7 (10.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>57 (89.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Stigma or discrimination from other people</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>44 (68.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>16 (25.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>3 (4.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Personal financial loss (e.g., lost wages, job loss, investment/retirement loss, travel-related cancellations)</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>24 (37.5%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>38 (59.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>2 (3.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Frustration or boredom.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>13 (20.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>51 (79.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Not having enough basic supplies (e.g., food, water, medications, a place to stay)</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>41 (64.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>22 (34.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>More anxiety.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>19 (29.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>44 (68.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>More depression.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>29 (45.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>35 (54.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>More sleep, less sleep, or other changes to your normal sleep pattern.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>17 (26.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>47 (73.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Increased alcohol or other substance use.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>41 (64.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>20 (31.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>3 (4.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Decreased alcohol or other substance use.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>43 (67.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>15 (23.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Decreased ability to get alcohol or other substances.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>45 (70.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>11 (17.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>7 (10.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>An increase in sexual activity.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>55 (85.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>5 (7.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>4 (6.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>A decrease in sexual activity.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>30 (46.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>29 (45.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>5 (7.8%)</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="were-you-worried-about-people-locally" class="section level2">
-<h2>were you worried about people locally</h2>
-<pre><code>covid_q26a 
-      Frequency Percent Valid Percent
-No            4    6.25         7.018
-Yes          53   82.81        92.982
-NA&#39;s          7   10.94              
-Total        64  100.00       100.000</code></pre>
 </div>
-<div id="were-you-worried-about-people-in-other-parts-of-the-us" class="section level2">
-<h2>were you worried about people in other parts of the US</h2>
-<pre><code>covid_q26b 
-      Frequency Percent Valid Percent
-No            3   4.688         5.263
-Yes          54  84.375        94.737
-NA&#39;s          7  10.938              
-Total        64 100.000       100.000</code></pre>
+<div id="which-of-the-following-are-you-experiencing-or-did-you-experience-because-of-the-new-corona-virus-1" class="section level1">
+<h1>Which of the following are you experiencing (or did you experience) because of the new corona virus?</h1>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=64)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Loneliness.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>23 (35.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>41 (64.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Confusion about what corona virus is, how to prevent it, or why social distancing, isolation, and quarantines are needed.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>45 (70.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>19 (29.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Feeling  that you were contributing to the greater good by preventing yourself or others from getting corona virus.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>3 (4.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>60 (93.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Getting <u>emotional or social</u> support from family, friends, partners, a counselor, or someone else.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>9 (14.1%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>53 (82.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Getting <u>financial</u> support from family, friends, partners, an organization, or someone else.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>27 (42.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>36 (56.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Don't Know</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Other difficulties or challenges.</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>53 (82.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>10 (15.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Not Applicable</td>
+<td class='lastrow'>1 (1.6%)</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="were-you-worried-about-people-outside-the-us" class="section level2">
-<h2>were you worried about people outside the US</h2>
-<pre><code>covid_q26c 
-           Frequency Percent Valid Percent
-No                14  21.875        24.561
-Yes               42  65.625        73.684
-Don&#39;t Know         1   1.562         1.754
-NA&#39;s               7  10.938              
-Total             64 100.000       100.000</code></pre>
-</div>
-<div id="stigma-or-discrimination-from-other-people-e.g.-people-treating-you-differently-because-of-your-identity-having-symptoms-or-other-factors-related-to-corona-virus" class="section level2">
-<h2>Stigma or discrimination from other people (e.g., people treating you differently because of your identity, having symptoms, or other factors related to corona virus)</h2>
-<pre><code>covid_q27 
-               Frequency Percent
-No                    44  68.750
-Yes                   16  25.000
-Don&#39;t Know             3   4.688
-Not Applicable         1   1.562
-Total                 64 100.000</code></pre>
-</div>
-<div id="personal-financial-loss-e.g.-lost-wages-job-loss-investmentretirement-loss-travel-related-cancellations" class="section level2">
-<h2>Personal financial loss (e.g., lost wages, job loss, investment/retirement loss, travel-related cancellations)</h2>
-<pre><code>covid_q28 
-           Frequency Percent
-No                24  37.500
-Yes               38  59.375
-Don&#39;t Know         2   3.125
-Total             64 100.000</code></pre>
-</div>
-<div id="frustration-or-boredom" class="section level2">
-<h2>Frustration or boredom</h2>
-<pre><code>covid_q29 
-      Frequency Percent
-No           13   20.31
-Yes          51   79.69
-Total        64  100.00</code></pre>
-</div>
-<div id="not-having-enough-basic-supplies-e.g.-food-water-medications-a-place-to-stay" class="section level2">
-<h2>Not having enough basic supplies (e.g., food, water, medications, a place to stay)</h2>
-<pre><code>covid_q30 
-           Frequency Percent
-No                41  64.062
-Yes               22  34.375
-Don&#39;t Know         1   1.562
-Total             64 100.000</code></pre>
-</div>
-<div id="more-anxiety" class="section level2">
-<h2>More anxiety</h2>
-<pre><code>covid_q31 
-           Frequency Percent
-No                19  29.688
-Yes               44  68.750
-Don&#39;t Know         1   1.562
-Total             64 100.000</code></pre>
-</div>
-<div id="more-depression" class="section level2">
-<h2>More depression</h2>
-<pre><code>covid_q32 
-      Frequency Percent
-No           29   45.31
-Yes          35   54.69
-Total        64  100.00</code></pre>
-</div>
-<div id="more-sleep-less-sleep-or-other-changes-to-your-normal-sleep-pattern" class="section level2">
-<h2>More sleep, less sleep, or other changes to your normal sleep pattern</h2>
-<pre><code>covid_q33 
-      Frequency Percent
-No           17   26.56
-Yes          47   73.44
-Total        64  100.00</code></pre>
-</div>
-<div id="increased-alcohol-or-other-substance-use" class="section level2">
-<h2>Increased alcohol or other substance use</h2>
-<pre><code>covid_q34 
-               Frequency Percent
-No                    41  64.062
-Yes                   20  31.250
-Not Applicable         3   4.688
-Total                 64 100.000</code></pre>
-</div>
-<div id="decreased-alcohol-or-other-substance-use" class="section level2">
-<h2>Decreased alcohol or other substance use</h2>
-<pre><code>covid_q35 
-               Frequency Percent
-No                    43  67.188
-Yes                   15  23.438
-Not Applicable         6   9.375
-Total                 64 100.000</code></pre>
-</div>
-<div id="decreased-ability-to-get-alcohol-or-other-substances" class="section level2">
-<h2>Decreased ability to get alcohol or other substances</h2>
-<pre><code>covid_q36 
-               Frequency Percent
-No                    45  70.312
-Yes                   11  17.188
-Don&#39;t Know             1   1.562
-Not Applicable         7  10.938
-Total                 64 100.000</code></pre>
-</div>
-<div id="an-increase-in-sexual-activity" class="section level2">
-<h2>An increase in sexual activity</h2>
-<pre><code>covid_q37 
-               Frequency Percent
-No                    55  85.938
-Yes                    5   7.812
-Not Applicable         4   6.250
-Total                 64 100.000</code></pre>
-</div>
-<div id="a-decrease-in-sexual-activity" class="section level2">
-<h2>A decrease in sexual activity</h2>
-<pre><code>covid_q38 
-               Frequency Percent
-No                    30  46.875
-Yes                   29  45.312
-Not Applicable         5   7.812
-Total                 64 100.000</code></pre>
-</div>
-<div id="loneliness" class="section level2">
-<h2>Loneliness</h2>
-<pre><code>covid_q39 
-      Frequency Percent
-No           23   35.94
-Yes          41   64.06
-Total        64  100.00</code></pre>
-</div>
-</div>
-<div id="we-are-going-to-ask-some-questions-about-how-the-corona-virus-may-have-affected-how-you-manage-your-hiv-infection." class="section level1">
-<h1>We are going to ask some questions about how the corona virus may have affected how you manage your HIV infection.</h1>
-<div id="confusion-about-what-corona-virus-is-how-to-prevent-it-or-why-social-distancing-isolation-and-quarantines-are-needed" class="section level2">
-<h2>Confusion about what corona virus is, how to prevent it, or why social distancing, isolation, and quarantines are needed</h2>
-<pre><code>covid_q40 
-      Frequency Percent
-No           45   70.31
-Yes          19   29.69
-Total        64  100.00</code></pre>
-</div>
-<div id="feeling-that-you-were-contributing-to-the-greater-good-by-preventing-yourself-or-others-from-getting-corona-virus" class="section level2">
-<h2>Feeling that you were contributing to the greater good by preventing yourself or others from getting corona virus</h2>
-<pre><code>covid_q41 
-               Frequency Percent
-No                     3   4.688
-Yes                   60  93.750
-Not Applicable         1   1.562
-Total                 64 100.000</code></pre>
-</div>
-<div id="getting-emotional-or-social-support-from-family-friends-partners-a-counselor-or-someone-else" class="section level2">
-<h2>Getting <em>emotional or social</em> support from family, friends, partners, a counselor, or someone else</h2>
-<pre><code>covid_q42 
-               Frequency Percent
-No                     9  14.062
-Yes                   53  82.812
-Don&#39;t Know             1   1.562
-Not Applicable         1   1.562
-Total                 64 100.000</code></pre>
-</div>
-<div id="getting-financial-support-from-family-friends-partners-an-organization-or-someone-else" class="section level2">
-<h2>Getting <em>financial</em> support from family, friends, partners, an organization, or someone else</h2>
-<pre><code>covid_q43 
-           Frequency Percent
-No                27  42.188
-Yes               36  56.250
-Don&#39;t Know         1   1.562
-Total             64 100.000</code></pre>
-</div>
-<div id="other-difficulties-or-challenges" class="section level2">
-<h2>Other difficulties or challenges</h2>
-<pre><code>covid_q44 
-               Frequency Percent
-No                    53  82.812
-Yes                   10  15.625
-Not Applicable         1   1.562
-Total                 64 100.000</code></pre>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=64)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Have you ever had a flu vaccine?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>5 (7.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>59 (92.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>When was the last time you had a flu vaccine?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Mean (SD)</td>
+<td>2020 (1.29)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Median [Q1, Q3]</td>
+<td>2020 [2020, 2020]</td>
+</tr>
+<tr>
+<td class='rowlabel'>Range [Min, Max]</td>
+<td>[2010, 2020]</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>5 (7.8%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Why not?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Because he is scared of needles and he stays in good health anyhow.</td>
+<td>1 (20.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>I'm not letting anyone put nothing in me</td>
+<td>1 (20.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>I am allergic to it</td>
+<td>1 (20.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>never</td>
+<td>1 (20.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>she doesn't like needles, only uses needles for the blooddraw</td>
+<td>1 (20.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>59 (92.2%)</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
-<div id="have-you-ever-had-a-flu-vaccine" class="section level1">
-<h1>Have you ever had a flu vaccine?</h1>
-<pre><code>covid_q46 
-      Frequency Percent
-No            5   7.812
-Yes          59  92.188
-Total        64 100.000</code></pre>
+<div id="we-are-going-to-ask-some-questions-about-how-the-corona-virus-may-have-affected-how-you-manage-your-hiv-infection.-again-there-are-no-right-or-wrong-answers.-we-just-want-to-understand-how-this-is-affecting-you." class="section level1">
+<h1>We are going to ask some questions about how the corona virus may have affected how you manage your HIV infection. Again, there are no right or wrong answers. We just want to understand how this is affecting you.</h1>
+<div class="Rtable1"><table class="Rtable1">
+<thead>
+<tr>
+<th class='rowlabel firstrow lastrow'></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=64)</span></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Were you taking HIV medications over the past three months?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Yes</td>
+<td class='lastrow'>58 (90.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Did you decide to <b>stop taking</b> HIV medications because of the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>56 (96.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>2 (3.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much did the corona virus increase your <b>willingness or desire</b> to take your HIV medication with a high level of adherence?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Not at all</td>
+<td>22 (37.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>A little</td>
+<td>3 (5.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat</td>
+<td>6 (10.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>A great deal</td>
+<td>27 (46.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Did you actually <b>increase how often</b> you took HIV medications because of the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>33 (56.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>22 (37.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Not Applicable</td>
+<td>3 (5.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much did the corona virus <b>get in the way</b> of how often you actually took HIV medications?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Not at all</td>
+<td>50 (86.2%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>A little</td>
+<td>2 (3.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Somewhat</td>
+<td>2 (3.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>A great deal</td>
+<td>4 (6.9%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>6 (9.4%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>How much has the corona virus increased your <b>willingness or desire</b> to start taking HIV medications?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>Not at all</td>
+<td>3 (50.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>A little</td>
+<td>1 (16.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>A great deal</td>
+<td>2 (33.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>58 (90.6%)</td>
+</tr>
+<tr>
+<td class='rowlabel firstrow'><span class='varlabel'>Do you think you will start taking HIV medications because of the corona virus?</span></td>
+<td class='firstrow'></td>
+</tr>
+<tr>
+<td class='rowlabel'>No</td>
+<td>2 (33.3%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Yes</td>
+<td>3 (50.0%)</td>
+</tr>
+<tr>
+<td class='rowlabel'>Don't Know</td>
+<td>1 (16.7%)</td>
+</tr>
+<tr>
+<td class='rowlabel lastrow'>Missing</td>
+<td class='lastrow'>58 (90.6%)</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="when-was-the-last-time-you-had-a-flu-vaccine" class="section level1">
-<h1>When was the last time you had a flu vaccine?</h1>
-<pre><code>When was the last time you had a flu vaccine?
-Please tell us the year. 
-      Frequency Percent Valid Percent
-2012          1   1.562         1.695
-2015          1   1.562         1.695
-2017          2   3.125         3.390
-2018          5   7.812         8.475
-2019         31  48.438        52.542
-2020         19  29.688        32.203
-NA&#39;s          5   7.812              
-Total        64 100.000       100.000</code></pre>
-</div>
-<div id="if-there-was-a-vaccine-for-the-corona-virus-would-you-get-it" class="section level1">
-<h1>If there was a vaccine for the corona virus, would you get it?</h1>
-<pre><code>covid_q48b 
-           Frequency Percent Valid Percent
-No                17   26.56         28.33
-Yes               35   54.69         58.33
-Don&#39;t Know         8   12.50         13.33
-NA&#39;s               4    6.25              
-Total             64  100.00        100.00</code></pre>
-</div>
-<div id="were-you-taking-hiv-medications-over-the-past-three-months" class="section level1">
-<h1>Were you taking HIV medications over the past three months?</h1>
-<pre><code>covid_q49 
-      Frequency Percent
-No            6   9.375
-Yes          58  90.625
-Total        64 100.000</code></pre>
-</div>
-<div id="did-you-decide-to-stop-taking-hiv-medications-because-of-the-corona-virus" class="section level1">
-<h1>Did you decide to <strong>stop taking</strong> HIV medications because of the corona virus?</h1>
-<pre><code>covid_q50 
-      Frequency Percent Valid Percent
-No           56  87.500        96.552
-Yes           2   3.125         3.448
-NA&#39;s          6   9.375              
-Total        64 100.000       100.000</code></pre>
-</div>
-<div id="how-much-did-the-corona-virus-increase-your-willingness-or-desire-to-take-your-hiv-medication-with-a-high-level-of-adherence" class="section level1">
-<h1>How much did the corona virus increase your <strong>willingness or desire</strong> to take your HIV medication with a high level of adherence?</h1>
-<pre><code>covid_q51 
-             Frequency Percent Valid Percent
-Not at all          22  34.375        37.931
-A little             3   4.688         5.172
-Somewhat             6   9.375        10.345
-A great deal        27  42.188        46.552
-NA&#39;s                 6   9.375              
-Total               64 100.000       100.000</code></pre>
-</div>
-<div id="did-you-actually-increase-how-often-you-took-hiv-medications-because-of-the-corona-virus" class="section level1">
-<h1>Did you actually <strong>increase how often</strong> you took HIV medications because of the corona virus?</h1>
-<pre><code>covid_q52 
-               Frequency Percent Valid Percent
-No                    33  51.562        56.897
-Yes                   22  34.375        37.931
-Not Applicable         3   4.688         5.172
-NA&#39;s                   6   9.375              
-Total                 64 100.000       100.000</code></pre>
-</div>
-<div id="how-much-did-the-corona-virus-get-in-the-way-of-how-often-you-actually-took-hiv-medications" class="section level1">
-<h1>How much did the corona virus <strong>get in the way</strong> of how often you actually took HIV medications?</h1>
-<pre><code>covid_q53 
-             Frequency Percent Valid Percent
-Not at all          50  78.125        86.207
-A little             2   3.125         3.448
-Somewhat             2   3.125         3.448
-A great deal         4   6.250         6.897
-NA&#39;s                 6   9.375              
-Total               64 100.000       100.000</code></pre>
-</div>
-<div id="how-much-has-the-corona-virus-increased-your-willingness-or-desire-to-start-taking-hiv-medications" class="section level1">
-<h1>How much has the corona virus increased your <strong>willingness or desire</strong> to start taking HIV medications?</h1>
-<pre><code>covid_q54 
-             Frequency Percent Valid Percent
-Not at all           3   4.688         50.00
-A little             1   1.562         16.67
-A great deal         2   3.125         33.33
-NA&#39;s                58  90.625              
-Total               64 100.000        100.00</code></pre>
-</div>
-<div id="do-you-think-you-will-start-taking-hiv-medications-because-of-the-corona-virus" class="section level1">
-<h1>Do you think you will start taking HIV medications because of the corona virus?</h1>
-<pre><code>covid_q55 
-           Frequency Percent Valid Percent
-No                 2   3.125         33.33
-Yes                3   4.688         50.00
-Don&#39;t Know         1   1.562         16.67
-NA&#39;s              58  90.625              
-Total             64 100.000        100.00</code></pre>
 </div>
 
 
