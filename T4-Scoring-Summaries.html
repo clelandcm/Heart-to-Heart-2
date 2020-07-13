@@ -189,6 +189,22 @@ window.buildTabsets = function(tocID) {
 };
 
 </script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
 <style type="text/css">.Rtable1 table, table.Rtable1 {font-family: "Arial", Arial, sans-serif;font-size: 10pt;border-collapse: collapse;padding: 0px;margin: 0px;}.Rtable1 td {white-space:nowrap;}.Rtable1 th, .Rtable1 td {border: 0;text-align: center;padding: 0.5ex 1.5ex;margin: 0px;}.Rtable1 thead>tr:first-child>th {border-top: 2pt solid black;}.Rtable1 thead>tr:last-child>th {border-bottom: 1pt solid black;}.Rtable1 tbody>tr:last-child>td {border-bottom: 2pt solid black;}.Rtable1 th.grouplabel {padding-left: 0;padding-right: 0;}.Rtable1 th.grouplabel>div {margin-left: 1.5ex;margin-right: 1.5ex;border-bottom: 1pt solid black;}.Rtable1 th.grouplabel:last-child>div {margin-right: 0;}.Rtable1 .rowlabel {text-align: left;padding-left: 2.5ex;}.Rtable1 .firstrow.rowlabel {padding-left: 0.5ex;font-weight: bold;}.Rtable1-zebra tbody tr:nth-child(odd) {background-color: #eee;}table.Rtable1-times {font-family: "Times New Roman", Times, serif;}.Rtable1-shade th {background-color: #ccc;}.Rtable1-grid th, .Rtable1-grid td {border-left: 1pt solid black;border-right: 1pt solid black;}.Rtable1-grid thead>tr:first-child>th {border-top: 1pt solid black;}.Rtable1-grid thead>tr:last-child>th {border-bottom: 1pt solid black;}.Rtable1-grid tbody>tr:last-child>td {border-bottom: 1pt solid black;}.Rtable1-grid .firstrow, .Rtable1-grid .firstrow ~ td {border-top: 1pt solid black;}.Rtable1-grid th.grouplabel>div {margin-left: 0;margin-right: 0;border-bottom: 0;}.Rtable1-center td.rowlabel, .Rtable1-center td.firstrow.rowlabel {font-weight: bold;text-align: center;padding: 0.5ex 1.5ex;}.Rtable1-footnote {font-size: smaller;padding: 0px;margin: 0px;}</style>
 
 
@@ -332,7 +348,7 @@ summary {
 
 <h1 class="title toc-ignore">H2H T4 Scoring and Summaries</h1>
 <h4 class="author">Last Updated</h4>
-<h4 class="date">July 10, 2020 06:13:03 PM EDT</h4>
+<h4 class="date">July 13, 2020 05:30:40 PM EDT</h4>
 
 </div>
 
@@ -486,8 +502,8 @@ summary {
 <tr>
 <th class='rowlabel firstrow lastrow'></th>
 <th class='firstrow lastrow'><span class='stratlabel'>Not Yet in Window<br><span class='stratn'>(N=61)</span></span></th>
-<th class='firstrow lastrow'><span class='stratlabel'>In Window<br><span class='stratn'>(N=145)</span></span></th>
-<th class='firstrow lastrow'><span class='stratlabel'>Window Period Over<br><span class='stratn'>(N=306)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>In Window<br><span class='stratn'>(N=143)</span></span></th>
+<th class='firstrow lastrow'><span class='stratlabel'>Window Period Over<br><span class='stratn'>(N=308)</span></span></th>
 <th class='firstrow lastrow'><span class='stratlabel'>Overall<br><span class='stratn'>(N=512)</span></span></th>
 </tr>
 </thead>
@@ -502,15 +518,15 @@ summary {
 <tr>
 <td class='rowlabel'>No</td>
 <td>61 (100%)</td>
-<td>99 (68.3%)</td>
-<td>65 (21.2%)</td>
+<td>98 (68.5%)</td>
+<td>66 (21.4%)</td>
 <td>225 (43.9%)</td>
 </tr>
 <tr>
 <td class='rowlabel lastrow'>Yes</td>
 <td class='lastrow'>0 (0%)</td>
-<td class='lastrow'>46 (31.7%)</td>
-<td class='lastrow'>241 (78.8%)</td>
+<td class='lastrow'>45 (31.5%)</td>
+<td class='lastrow'>242 (78.6%)</td>
 <td class='lastrow'>287 (56.1%)</td>
 </tr>
 </tbody>
@@ -945,6 +961,11 @@ summary {
 <div id="what-type-of-place-do-you-currently-live-in" class="section level2">
 <h2>What type of place do you currently live in?</h2>
 <table>
+<colgroup>
+<col width="85%"></col>
+<col width="4%"></col>
+<col width="9%"></col>
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">fu4_livingsit_1</th>
@@ -1264,6 +1285,11 @@ summary {
 <div id="what-is-the-name-of-this-place" class="section level2">
 <h2>What is the name of this place?</h2>
 <table>
+<colgroup>
+<col width="89%"></col>
+<col width="2%"></col>
+<col width="7%"></col>
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">fu4_hiv_art_hist_q15</th>
@@ -3019,6 +3045,11 @@ summary {
 <div id="reasons-for-stopping-or-discontinuing-hiv-medication" class="section level1">
 <h1>Reasons for stopping or discontinuing HIV medication</h1>
 <table>
+<colgroup>
+<col width="84%"></col>
+<col width="6%"></col>
+<col width="8%"></col>
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Reason</th>
@@ -3098,6 +3129,11 @@ summary {
 <div id="reasons-for-never-taking-hiv-medication" class="section level1">
 <h1>Reasons for never taking HIV medication</h1>
 <table>
+<colgroup>
+<col width="86%"></col>
+<col width="5%"></col>
+<col width="7%"></col>
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Reason</th>
@@ -6082,7 +6118,17 @@ summary {
 </div>
 <div id="categories" class="section level3">
 <h3>Categories</h3>
-<table>
+<table style="width:100%;">
+<colgroup>
+<col width="22%"></col>
+<col width="10%"></col>
+<col width="12%"></col>
+<col width="12%"></col>
+<col width="14%"></col>
+<col width="9%"></col>
+<col width="11%"></col>
+<col width="7%"></col>
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Substance</th>
@@ -6258,33 +6304,33 @@ summary {
 <div id="social-support-13-65" class="section level1">
 <h1>Social Support (13-65)</h1>
 <ul>
-<li><p>Moser, A., Stuck, A. E., Silliman, R. A., Ganz, P. A., &amp; Clough-Gorr, K. M. (2012). The eight-item modified Medical Outcomes Study Social Support Survey: psychometric evaluation showed excellent performance. <em>Journal of clinical epidemiology</em>, 65(10), 1107-1116.</p></li>
-<li><p>Sherbourne, C. D., &amp; Stewart, A. L. (1991). The MOS social support survey. <em>Social science &amp; medicine</em>, 32(6), 705-714.</p>
+<li>Moser, A., Stuck, A. E., Silliman, R. A., Ganz, P. A., &amp; Clough-Gorr, K. M. (2012). The eight-item modified Medical Outcomes Study Social Support Survey: psychometric evaluation showed excellent performance. <em>Journal of clinical epidemiology</em>, 65(10), 1107-1116.</li>
+<li>Sherbourne, C. D., &amp; Stewart, A. L. (1991). The MOS social support survey. <em>Social science &amp; medicine</em>, 32(6), 705-714.</li>
+</ul>
 <table>
 <thead>
 <tr class="header">
-<th align="right">n M</th>
-<th align="left">ean</th>
-<th align="right">sd M</th>
-<th>edian I</th>
-<th>QR M</th>
-<th>in M</th>
-<th align="left">ax</th>
+<th align="right">n</th>
+<th align="right">Mean</th>
+<th align="right">sd</th>
+<th align="right">Median</th>
+<th align="right">IQR</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="right">284</td>
-<td align="left">40.3</td>
+<td align="right">40.3</td>
 <td align="right">15.46</td>
-<td>40.37</td>
-<td>23</td>
-<td>13</td>
-<td align="left">65</td>
+<td align="right">40.37</td>
+<td align="right">23</td>
+<td align="right">13</td>
+<td align="right">65</td>
 </tr>
 </tbody>
-</table></li>
-</ul>
+</table>
 <p>Coefficient Alpha</p>
 <ul>
 <li><p><strong>total</strong>:</p>
@@ -6804,32 +6850,32 @@ summary {
 <div id="provider-trust-0-44" class="section level1">
 <h1>Provider Trust (0-44)</h1>
 <ul>
-<li><p>Anderson &amp; Dedrick (1990). Development of the trust in physician scale: A measure to assess interpersonal trust in patient-physician relationships. <em>Psychological Reports</em>, 67: 1091-1100.</p>
+<li>Anderson &amp; Dedrick (1990). Development of the trust in physician scale: A measure to assess interpersonal trust in patient-physician relationships. <em>Psychological Reports</em>, 67: 1091-1100.</li>
+</ul>
 <table>
 <thead>
 <tr class="header">
-<th align="center">n</th>
-<th align="left">Mean</th>
-<th align="right">sd M</th>
-<th>edian I</th>
-<th align="left">QR</th>
-<th align="right">Min M</th>
-<th align="left">ax</th>
+<th align="right">n</th>
+<th align="right">Mean</th>
+<th align="right">sd</th>
+<th align="right">Median</th>
+<th align="right">IQR</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">285</td>
-<td align="left">30.43</td>
+<td align="right">285</td>
+<td align="right">30.43</td>
 <td align="right">8.64</td>
-<td>31</td>
-<td align="left">10</td>
+<td align="right">31</td>
+<td align="right">10</td>
 <td align="right">4.714286</td>
-<td align="left">44</td>
+<td align="right">44</td>
 </tr>
 </tbody>
-</table></li>
-</ul>
+</table>
 <p>Coefficient Alpha</p>
 <ul>
 <li><p><strong>total</strong>:</p>
@@ -7289,34 +7335,34 @@ summary {
 <div id="healthcare-system-trust-9-45" class="section level1">
 <h1>Healthcare System Trust (9-45)</h1>
 <ul>
-<li><p>Shea, J. A., Micco, E., Dean, L. T., McMurphy, S., Schwartz, J. S., &amp; Armstrong, K. (2008). Development of a revised health care system distrust scale. <em>Journal of General Internal Medicine</em>, 23(6), 727-732.</p></li>
-<li><p>Mark A. Hall, (2006). Researching medical trust in the United States. <em>Journal of Health Organization and Management</em>, 20(5) 456-467. <a href="http://dx.doi.org/10.1108/14777260610701812" class="uri">http://dx.doi.org/10.1108/14777260610701812</a></p></li>
-<li><p>Rose, A., Peters, N., Shea, J. A., &amp; Armstrong, K. (2004). Development and Testing of the Health Care System Distrust Scale. <em>Journal of General Internal Medicine</em>, 19(1), 57-63. <a href="http://doi.org/10.1111/j.1525-1497.2004.21146.x" class="uri">http://doi.org/10.1111/j.1525-1497.2004.21146.x</a>.</p>
+<li>Shea, J. A., Micco, E., Dean, L. T., McMurphy, S., Schwartz, J. S., &amp; Armstrong, K. (2008). Development of a revised health care system distrust scale. <em>Journal of General Internal Medicine</em>, 23(6), 727-732.</li>
+<li>Mark A. Hall, (2006). Researching medical trust in the United States. <em>Journal of Health Organization and Management</em>, 20(5) 456-467. <a href="http://dx.doi.org/10.1108/14777260610701812" class="uri">http://dx.doi.org/10.1108/14777260610701812</a></li>
+<li>Rose, A., Peters, N., Shea, J. A., &amp; Armstrong, K. (2004). Development and Testing of the Health Care System Distrust Scale. <em>Journal of General Internal Medicine</em>, 19(1), 57-63. <a href="http://doi.org/10.1111/j.1525-1497.2004.21146.x" class="uri">http://doi.org/10.1111/j.1525-1497.2004.21146.x</a>.</li>
+</ul>
 <table>
 <thead>
 <tr class="header">
-<th align="center">n</th>
-<th align="left">Mean</th>
-<th align="right">sd M</th>
-<th>edian I</th>
-<th>QR M</th>
-<th>in M</th>
-<th align="left">ax</th>
+<th align="right">n</th>
+<th align="right">Mean</th>
+<th align="right">sd</th>
+<th align="right">Median</th>
+<th align="right">IQR</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">283</td>
-<td align="left">30.07</td>
+<td align="right">283</td>
+<td align="right">30.07</td>
 <td align="right">7.98</td>
-<td>29</td>
-<td>11</td>
-<td>9</td>
-<td align="left">45</td>
+<td align="right">29</td>
+<td align="right">11</td>
+<td align="right">9</td>
+<td align="right">45</td>
 </tr>
 </tbody>
-</table></li>
-</ul>
+</table>
 <p>Coefficient Alpha</p>
 <ul>
 <li><p><strong>total</strong>:</p>
@@ -10722,32 +10768,32 @@ summary {
 <div id="hiv-adherence-self-efficacy-0-120" class="section level1">
 <h1>HIV Adherence Self-Efficacy (0-120)</h1>
 <ul>
-<li><p>Johnson, M. O., Neilands, T. B., Dilworth, S. E., Morin, S. F., Remien, R. H., &amp; Chesney, M. A. (2007). The role of self-efficacy in HIV treatment adherence: validation of the HIV Treatment Adherence Self-Efficacy Scale (HIV-ASES). <em>Journal of behavioral medicine</em>, 30(5), 359-370.</p>
+<li>Johnson, M. O., Neilands, T. B., Dilworth, S. E., Morin, S. F., Remien, R. H., &amp; Chesney, M. A. (2007). The role of self-efficacy in HIV treatment adherence: validation of the HIV Treatment Adherence Self-Efficacy Scale (HIV-ASES). <em>Journal of behavioral medicine</em>, 30(5), 359-370.</li>
+</ul>
 <table>
 <thead>
 <tr class="header">
-<th align="center">n</th>
-<th>Mean s</th>
-<th>d M</th>
-<th align="left">edian</th>
-<th>IQR M</th>
-<th>in M</th>
-<th align="left">ax</th>
+<th align="right">n</th>
+<th align="right">Mean</th>
+<th align="right">sd</th>
+<th align="right">Median</th>
+<th align="right">IQR</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">283</td>
-<td>87.29</td>
-<td>29</td>
-<td align="left">92</td>
-<td>48.5</td>
-<td>0</td>
-<td align="left">120</td>
+<td align="right">283</td>
+<td align="right">87.29</td>
+<td align="right">29</td>
+<td align="right">92</td>
+<td align="right">48.5</td>
+<td align="right">0</td>
+<td align="right">120</td>
 </tr>
 </tbody>
-</table></li>
-</ul>
+</table>
 <p>Coefficient Alpha</p>
 <ul>
 <li><p><strong>total</strong>:</p>
@@ -11105,33 +11151,33 @@ summary {
 <div id="beliefs-about-medicine-8-40" class="section level1">
 <h1>Beliefs about Medicine (8-40)</h1>
 <ul>
-<li><p>Horne, R., Buick, D., Fisher, M., Leake, H., Cooper, V., &amp; Weinman, J. (2004). Doubts about necessity and concerns about adverse effects: identifying the types of beliefs that are associated with non-adherence to HAART. <em>International Journal of STD &amp; AIDS</em>, 15(1), 38-44.</p></li>
-<li><p>Horne, R., Cooper, V., Gellaitry, G., Date, H. L., &amp; Fisher, M. (2007). Patients’ perceptions of highly active antiretroviral therapy in relation to treatment uptake and adherence: the utility of the necessity-concerns framework. <em>JAIDS Journal of Acquired Immune Deficiency Syndromes</em>, 45(3), 334-341.</p>
+<li>Horne, R., Buick, D., Fisher, M., Leake, H., Cooper, V., &amp; Weinman, J. (2004). Doubts about necessity and concerns about adverse effects: identifying the types of beliefs that are associated with non-adherence to HAART. <em>International Journal of STD &amp; AIDS</em>, 15(1), 38-44.</li>
+<li>Horne, R., Cooper, V., Gellaitry, G., Date, H. L., &amp; Fisher, M. (2007). Patients’ perceptions of highly active antiretroviral therapy in relation to treatment uptake and adherence: the utility of the necessity-concerns framework. <em>JAIDS Journal of Acquired Immune Deficiency Syndromes</em>, 45(3), 334-341.</li>
+</ul>
 <table>
 <thead>
 <tr class="header">
-<th align="center">n</th>
-<th align="left">Mean</th>
-<th align="right">sd M</th>
-<th>edian I</th>
-<th>QR M</th>
-<th>in M</th>
-<th align="left">ax</th>
+<th align="right">n</th>
+<th align="right">Mean</th>
+<th align="right">sd</th>
+<th align="right">Median</th>
+<th align="right">IQR</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="center">283</td>
-<td align="left">30.12</td>
+<td align="right">283</td>
+<td align="right">30.12</td>
 <td align="right">6.79</td>
-<td>32</td>
-<td>8</td>
-<td>8</td>
-<td align="left">40</td>
+<td align="right">32</td>
+<td align="right">8</td>
+<td align="right">8</td>
+<td align="right">40</td>
 </tr>
 </tbody>
-</table></li>
-</ul>
+</table>
 <p>Coefficient Alpha</p>
 <ul>
 <li><p><strong>total</strong>:</p>
@@ -15462,33 +15508,33 @@ Row(%)</td>
 <div id="connor-davidson-resilience-scale-cd-risc-0-40" class="section level1">
 <h1>Connor-Davidson Resilience Scale (CD-RISC) (0-40)</h1>
 <ul>
-<li><p>Campbell-Sills, L., &amp; Stein, M. B. (2007). Psychometric analysis and refinement of the connor-davidson resilience scale (CD-RISC): Validation of a 10-item measure of resilience. <em>Journal of traumatic stress</em>, 20(6), 1019-1028.</p></li>
-<li><p>Connor, K. M., &amp; Davidson, J. R. (2003). Development of a new resilience scale: The Connor-Davidson resilience scale (CD-RISC). <em>Depression and anxiety</em>, 18(2), 76-82.</p>
+<li>Campbell-Sills, L., &amp; Stein, M. B. (2007). Psychometric analysis and refinement of the connor-davidson resilience scale (CD-RISC): Validation of a 10-item measure of resilience. <em>Journal of traumatic stress</em>, 20(6), 1019-1028.</li>
+<li>Connor, K. M., &amp; Davidson, J. R. (2003). Development of a new resilience scale: The Connor-Davidson resilience scale (CD-RISC). <em>Depression and anxiety</em>, 18(2), 76-82.</li>
+</ul>
 <table>
 <thead>
 <tr class="header">
-<th align="right">n M</th>
-<th align="left">ean</th>
-<th align="right">sd M</th>
-<th>edian I</th>
-<th>QR M</th>
-<th>in M</th>
-<th align="left">ax</th>
+<th align="right">n</th>
+<th align="right">Mean</th>
+<th align="right">sd</th>
+<th align="right">Median</th>
+<th align="right">IQR</th>
+<th align="right">Min</th>
+<th align="right">Max</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="right">277</td>
-<td align="left">27.2</td>
+<td align="right">27.2</td>
 <td align="right">8.13</td>
-<td>28</td>
-<td>11</td>
-<td>0</td>
-<td align="left">40</td>
+<td align="right">28</td>
+<td align="right">11</td>
+<td align="right">0</td>
+<td align="right">40</td>
 </tr>
 </tbody>
-</table></li>
-</ul>
+</table>
 <p>Coefficient Alpha</p>
 <ul>
 <li><p><strong>total</strong>:</p>
