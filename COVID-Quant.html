@@ -229,6 +229,45 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
 <style type="text/css">.Rtable1 table, table.Rtable1 {font-family: "Arial", Arial, sans-serif;font-size: 10pt;border-collapse: collapse;padding: 0px;margin: 0px;}.Rtable1 td {white-space:nowrap;}.Rtable1 th, .Rtable1 td {border: 0;text-align: center;padding: 0.5ex 1.5ex;margin: 0px;}.Rtable1 thead>tr:first-child>th {border-top: 2pt solid black;}.Rtable1 thead>tr:last-child>th {border-bottom: 1pt solid black;}.Rtable1 tbody>tr:last-child>td {border-bottom: 2pt solid black;}.Rtable1 th.grouplabel {padding-left: 0;padding-right: 0;}.Rtable1 th.grouplabel>div {margin-left: 1.5ex;margin-right: 1.5ex;border-bottom: 1pt solid black;}.Rtable1 th.grouplabel:last-child>div {margin-right: 0;}.Rtable1 .rowlabel {text-align: left;padding-left: 2.5ex;}.Rtable1 .firstrow.rowlabel {padding-left: 0.5ex;font-weight: bold;}.Rtable1-zebra tbody tr:nth-child(odd) {background-color: #eee;}table.Rtable1-times {font-family: "Times New Roman", Times, serif;}.Rtable1-shade th {background-color: #ccc;}.Rtable1-grid th, .Rtable1-grid td {border-left: 1pt solid black;border-right: 1pt solid black;}.Rtable1-grid thead>tr:first-child>th {border-top: 1pt solid black;}.Rtable1-grid thead>tr:last-child>th {border-bottom: 1pt solid black;}.Rtable1-grid tbody>tr:last-child>td {border-bottom: 1pt solid black;}.Rtable1-grid .firstrow, .Rtable1-grid .firstrow ~ td {border-top: 1pt solid black;}.Rtable1-grid th.grouplabel>div {margin-left: 0;margin-right: 0;border-bottom: 0;}.Rtable1-center td.rowlabel, .Rtable1-center td.firstrow.rowlabel {font-weight: bold;text-align: center;padding: 0.5ex 1.5ex;}.Rtable1-footnote {font-size: smaller;padding: 0px;margin: 0px;}</style>
 
 <style type="text/css">
@@ -238,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
   div.column{display: inline-block; vertical-align: top; width: 50%;}
   div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   ul.task-list{list-style: none;}
-      </style>
+    </style>
 
 
 
@@ -380,7 +419,7 @@ summary {
 
 <h1 class="title toc-ignore">COVID Survey Items</h1>
 <h4 class="author">Chuck Cleland</h4>
-<h4 class="date">November 11, 2020 05:45:46 PM EST</h4>
+<h4 class="date">November 12, 2020 06:07:11 PM EST</h4>
 
 </div>
 
@@ -1795,7 +1834,7 @@ summary {
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
